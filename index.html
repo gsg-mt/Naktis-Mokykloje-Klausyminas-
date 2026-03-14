@@ -19,6 +19,7 @@
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
             padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            max-height: 80vh; overflow-y: auto; /* Pridėtas skrolinimas ilgam tvarkaraščiui */
         }
         .menu-btn {
             background: transparent; border: 2px solid white; color: white;
@@ -32,7 +33,7 @@
             width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; 
             border: 1px solid white; background: rgba(255,255,255,0.05); color: white; text-align: center; font-size: 16px; outline: none;
         }
-        .list-item { background: rgba(255,255,255,0.1); margin: 8px 0; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #facc15; }
+        .list-item { background: rgba(255,255,255,0.1); margin: 6px 0; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #facc15; font-size: 14px; }
         .status-badge { padding: 12px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; }
         .correct { border: 1px solid #22c55e; color: #22c55e; background: rgba(34, 197, 94, 0.1); }
         .wrong { border: 1px solid #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
@@ -56,10 +57,19 @@
         </div>
 
         <div id="schedule-section" class="hidden">
-            <h3>Renginio eiga</h3>
-            <div class="list-item"><span>19:00</span> <span>Atidarymas</span></div>
-            <div class="list-item"><span>20:00</span> <span>Orientacinės</span></div>
-            <div class="list-item"><span>01:00</span> <span>Apdovanojimai</span></div>
+            <h3 style="color: #facc15;">📅 Renginio programa</h3>
+            <div class="list-item"><span>18:30 - 20:00</span> <span>Registracija</span></div>
+            <div class="list-item"><span>20:00 - 20:15</span> <span>Atidarymas</span></div>
+            <div class="list-item"><span>20:15 - 22:15</span> <span>Madų šou</span></div>
+            <div class="list-item"><span>22:15 - 22:30</span> <span>Pertrauka</span></div>
+            <div class="list-item"><span>22:30 - 00:30</span> <span>Diskoteka</span></div>
+            <div class="list-item"><span>00:30 - 01:00</span> <span>Pertrauka</span></div>
+            <div class="list-item"><span>01:00 - 02:30</span> <span>Orientacinės</span></div>
+            <div class="list-item"><span>02:30 - 03:30</span> <span>Ilgoji pertrauka</span></div>
+            <div class="list-item"><span>03:30 - 05:00</span> <span>Filmo peržiūra</span></div>
+            <div class="list-item"><span>05:00 - 07:00</span> <span>Miegojimas</span></div>
+            <div class="list-item"><span>07:00 - 07:15</span> <span>Mankšta</span></div>
+            <div class="list-item"><span>07:15 - 08:00</span> <span>Pabaiga</span></div>
             <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
 
@@ -91,8 +101,7 @@
             <input type="text" id="add-name" placeholder="Komanda">
             <input type="number" id="add-score" placeholder="Taškai">
             <input type="text" id="add-time" placeholder="Laikas">
-            <button class="menu-btn" style="background: #22c55e; border:none;" onclick="adminAddResult()">Įrašyti į TOP 3</button>
-            <button class="menu-btn" style="color: #ef4444; border-color: #ef4444; font-size: 12px;" onclick="clearResults()">Išvalyti visą bazę</button>
+            <button class="menu-btn" style="background: #22c55e; border:none;" onclick="adminAddResult()">Įrašyti</button>
             <button class="menu-btn" onclick="showSection('admin-panel')">Atgal į Admin</button>
         </div>
 
@@ -163,7 +172,7 @@
 
     function generateQR() {
         const text = document.getElementById('qr-input-text').value;
-        if(!text) return alert("Įrašykite tekstą");
+        if(!text) return;
         const container = document.getElementById('qrcode');
         container.classList.remove('hidden');
         container.innerHTML = "";
@@ -187,10 +196,6 @@
         alert("Įrašyta!");
     }
 
-    async function clearResults() {
-        if(confirm("Ištrinti viską?")) await _supabase.from('rezultatai').delete().neq('team', 'null');
-    }
-
     function startQuiz() {
         currentTeam = document.getElementById('team-name-input').value;
         if(!currentTeam) return;
@@ -202,13 +207,20 @@
     function checkAnswer() {
         const val = document.getElementById('ans-input').value.toLowerCase().trim();
         if(val === quizData[qIdx].a) score++;
-        showSection('finish-step'); // Supaprastinta pabaigai
-        document.getElementById('final-stats').innerHTML = `Taškai: ${score}/${quizData.length}`;
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const timeStr = Math.floor(diff / 60) + ":" + (diff % 60).toString().padStart(2, '0');
+        showSection('finish-step');
+        document.getElementById('final-stats').innerHTML = `Taškai: ${score}/${quizData.length}<br>Laikas: ${timeStr}`;
         
         fetch("https://formspree.io/f/mojklbzq", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ Komanda: currentTeam, Taskai: score })
+            body: JSON.stringify({ 
+                Komanda: currentTeam, 
+                Taskai: score,
+                Rezultatas: score + "/" + quizData.length,
+                Laikas: timeStr
+            })
         });
     }
 
