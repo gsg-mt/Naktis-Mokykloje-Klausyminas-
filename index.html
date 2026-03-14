@@ -13,12 +13,13 @@
             background: url('fonas.gif') no-repeat center center fixed;
             background-size: cover; color: white; display: flex; justify-content: center; min-height: 100vh;
         }
-        .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; }
+        .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
         .logo-img { max-width: 90%; height: auto; mix-blend-mode: screen; margin-bottom: 10px; }
         .card {
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
             padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            margin-bottom: auto; /* Push card to top */
         }
         .menu-btn {
             background: transparent; border: 2px solid white; color: white;
@@ -36,16 +37,16 @@
         .correct { border: 1px solid #22c55e; color: #22c55e; background: rgba(34, 197, 94, 0.1); }
         .wrong { border: 1px solid #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
         
-        /* KLASĖ EKSPLA LOGOTIPUI - PAŠALINA BALTĄ FONĄ IR PAŠVIESINA RAIDĘ */
-        .ekspla-logo-fix {
-            max-width: 160px;
-            margin-top: 15px;
-            /* Šis režimas padaro baltą foną nematomą ant tamsaus fono */
-            mix-blend-mode: screen; 
+        /* NAUJAS STILIUS SKAIDRIAM LOGOTIPUI */
+        .ekspla-logo-final {
+            max-width: 180px;
+            height: auto;
+            margin: 20px 0; /* Tarpas viršuje ir apačioje */
+            filter: brightness(0) invert(1); /* Padaro logotipą visiškai baltą */
             opacity: 0.9;
         }
 
-        .sponsors { margin-top: 40px; font-size: 12px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; }
+        .sponsors { margin-top: 50px; margin-bottom: 20px; font-size: 13px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; line-height: 1.6; }
         #qrcode { background: white; padding: 10px; margin: 15px auto; display: inline-block; border-radius: 10px; }
         #reader { border-radius: 15px; overflow: hidden; border: 2px solid white !important; margin-bottom: 15px; background: black; }
     </style>
@@ -53,102 +54,104 @@
 <body>
 
 <div class="container">
-    <img src="logo.jpg" class="logo-img">
+    <div>
+        <img src="logo.jpg" class="logo-img">
 
-    <div class="card">
-        <div id="main-menu">
-            <button class="menu-btn" onclick="showSection('team-selection')">Pradėti žaidimą</button>
-            <button class="menu-btn" onclick="showSection('schedule-section')">📅 Tvarkaraštis</button>
-            <button class="menu-btn" onclick="showSection('top3-section')">🏆 TOP 3 Rezultatai</button>
-            <button class="menu-btn" onclick="showSection('qr-generator-section')">🛠️ QR kodų kūrimas</button>
-            <button class="menu-btn" onclick="showSection('admin-login')">Mokinių taryba</button>
-        </div>
-
-        <div id="schedule-section" class="hidden">
-            <h3>Renginio eiga</h3>
-            <div class="list-item"><span>19:00</span> <span>Atidarymas</span></div>
-            <div class="list-item"><span>20:00</span> <span>Orientacinės</span></div>
-            <div class="list-item"><span>23:00</span> <span>Pica ir filmas</span></div>
-            <div class="list-item"><span>01:00</span> <span>Apdovanojimai</span></div>
-            <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
-        </div>
-
-        <div id="qr-generator-section" class="hidden">
-            <h3>QR KODŲ GENERAVIMAS</h3>
-            <input type="text" id="qr-input-text" placeholder="Raktas (pvz. kodas1)">
-            <button class="menu-btn" onclick="generateQR()">Generuoti QR</button>
-            <div id="qrcode"></div>
-            <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
-        </div>
-
-        <div id="team-selection" class="hidden">
-            <h3>Komandos pavadinimas</h3>
-            <input type="text" id="team-name-input" placeholder="Įveskite vardą...">
-            <button class="menu-btn" onclick="startQuiz()">PRADĖTI</button>
-            <button onclick="showSection('main-menu')" style="background:none; border:none; color:grey; cursor:pointer;">Atšaukti</button>
-        </div>
-
-        <div id="quiz-step" class="hidden">
-            <div id="lock-status" class="status-badge" style="background: rgba(255,255,255,0.1);">🔒 RASKITE QR KODĄ</div>
-            <div id="scanner-container" class="hidden">
-                <div id="reader"></div>
-                <button class="menu-btn" onclick="stopScanner()">Atšaukti</button>
+        <div class="card">
+            <div id="main-menu">
+                <button class="menu-btn" onclick="showSection('team-selection')">Pradėti žaidimą</button>
+                <button class="menu-btn" onclick="showSection('schedule-section')">📅 Tvarkaraštis</button>
+                <button class="menu-btn" onclick="showSection('top3-section')">🏆 TOP 3 Rezultatai</button>
+                <button class="menu-btn" onclick="showSection('qr-generator-section')">🛠️ QR kodų kūrimas</button>
+                <button class="menu-btn" onclick="showSection('admin-login')">Mokinių taryba</button>
             </div>
-            <div id="quiz-content" class="hidden">
-                <p id="riddle-text" style="font-size: 18px; line-height: 1.4;"></p>
-                <input type="text" id="ans-input" placeholder="Atsakymas">
-                <button class="menu-btn" onclick="checkAnswer()">Tikrinti</button>
+
+            <div id="schedule-section" class="hidden">
+                <h3>Renginio eiga</h3>
+                <div class="list-item"><span>19:00</span> <span>Atidarymas</span></div>
+                <div class="list-item"><span>20:00</span> <span>Orientacinės</span></div>
+                <div class="list-item"><span>23:00</span> <span>Pica ir filmas</span></div>
+                <div class="list-item"><span>01:00</span> <span>Apdovanojimai</span></div>
+                <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
             </div>
-            <button id="open-scanner-btn" class="menu-btn" style="background: white; color: black;" onclick="startScanner()">📷 SKENUOTI KODĄ</button>
-            <div id="next-loc" class="hidden">
-                <div id="answer-feedback" class="status-badge"></div>
-                <p>Kita stotelė:</p>
-                <p id="location-text" style="font-weight: bold; color: #60a5fa; font-size: 20px;"></p>
-                <button class="menu-btn" onclick="prepareNext()">EITI TOLIAU</button>
+
+            <div id="qr-generator-section" class="hidden">
+                <h3>QR KODŲ GENERAVIMAS</h3>
+                <input type="text" id="qr-input-text" placeholder="Raktas (pvz. kodas1)">
+                <button class="menu-btn" onclick="generateQR()">Generuoti QR</button>
+                <div id="qrcode"></div>
+                <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
             </div>
-        </div>
 
-        <div id="finish-step" class="hidden">
-            <h2 style="color: #22c55e;">FINIŠAS! 🎉</h2>
-            <div id="final-stats" style="margin: 20px 0; font-size: 18px;"></div>
-            <p style="font-size: 13px; color: #aaa;">Jūsų rezultatas užfiksuotas sistemoje.</p>
-            <button class="menu-btn" onclick="location.reload()">Baigti</button>
-        </div>
+            <div id="team-selection" class="hidden">
+                <h3>Komandos pavadinimas</h3>
+                <input type="text" id="team-name-input" placeholder="Įveskite vardą...">
+                <button class="menu-btn" onclick="startQuiz()">PRADĖTI</button>
+                <button onclick="showSection('main-menu')" style="background:none; border:none; color:grey; cursor:pointer;">Atšaukti</button>
+            </div>
 
-        <div id="top3-section" class="hidden">
-            <h3>🏆 TOP 3 Rezultatai</h3>
-            <div id="top3-list">Kraunama iš bazės...</div>
-            <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
-        </div>
+            <div id="quiz-step" class="hidden">
+                <div id="lock-status" class="status-badge" style="background: rgba(255,255,255,0.1);">🔒 RASKITE QR KODĄ</div>
+                <div id="scanner-container" class="hidden">
+                    <div id="reader"></div>
+                    <button class="menu-btn" onclick="stopScanner()">Atšaukti</button>
+                </div>
+                <div id="quiz-content" class="hidden">
+                    <p id="riddle-text" style="font-size: 18px; line-height: 1.4;"></p>
+                    <input type="text" id="ans-input" placeholder="Atsakymas">
+                    <button class="menu-btn" onclick="checkAnswer()">Tikrinti</button>
+                </div>
+                <button id="open-scanner-btn" class="menu-btn" style="background: white; color: black;" onclick="startScanner()">📷 SKENUOTI KODĄ</button>
+                <div id="next-loc" class="hidden">
+                    <div id="answer-feedback" class="status-badge"></div>
+                    <p>Kita stotelė:</p>
+                    <p id="location-text" style="font-weight: bold; color: #60a5fa; font-size: 20px;"></p>
+                    <button class="menu-btn" onclick="prepareNext()">EITI TOLIAU</button>
+                </div>
+            </div>
 
-        <div id="admin-login" class="hidden">
-            <h3>Tarybos prisijungimas</h3>
-            <input type="password" id="admin-pass" placeholder="Slaptažodis">
-            <button class="menu-btn" onclick="checkAdmin()">Prisijungti</button>
-        </div>
-        <div id="admin-panel" class="hidden">
-            <h3>Admin valdymas</h3>
-            <input type="text" id="add-name" placeholder="Komanda">
-            <input type="number" id="add-score" placeholder="Taškai">
-            <input type="text" id="add-time" placeholder="Laikas">
-            <button class="menu-btn" style="background: #22c55e;" onclick="adminAddResult()">Įrašyti į TOP 3</button>
-            <button class="menu-btn" style="color: #ef4444; border-color: #ef4444;" onclick="clearResults()">Išvalyti bazę</button>
-            <button class="menu-btn" onclick="showSection('main-menu')">Atsijungti</button>
+            <div id="finish-step" class="hidden">
+                <h2 style="color: #22c55e;">FINIŠAS! 🎉</h2>
+                <div id="final-stats" style="margin: 20px 0; font-size: 18px;"></div>
+                <p style="font-size: 13px; color: #aaa;">Jūsų rezultatas užfiksuotas sistemoje.</p>
+                <button class="menu-btn" onclick="location.reload()">Baigti</button>
+            </div>
+
+            <div id="top3-section" class="hidden">
+                <h3>🏆 TOP 3 Rezultatai</h3>
+                <div id="top3-list">Kraunama iš bazės...</div>
+                <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
+            </div>
+
+            <div id="admin-login" class="hidden">
+                <h3>Tarybos prisijungimas</h3>
+                <input type="password" id="admin-pass" placeholder="Slaptažodis">
+                <button class="menu-btn" onclick="checkAdmin()">Prisijungti</button>
+            </div>
+            <div id="admin-panel" class="hidden">
+                <h3>Admin valdymas</h3>
+                <input type="text" id="add-name" placeholder="Komanda">
+                <input type="number" id="add-score" placeholder="Taškai">
+                <input type="text" id="add-time" placeholder="Laikas">
+                <button class="menu-btn" style="background: #22c55e;" onclick="adminAddResult()">Įrašyti į TOP 3</button>
+                <button class="menu-btn" style="color: #ef4444; border-color: #ef4444;" onclick="clearResults()">Išvalyti bazę</button>
+                <button class="menu-btn" onclick="showSection('main-menu')">Atsijungti</button>
+            </div>
         </div>
     </div>
 
     <div class="sponsors">
         Pagrindinis rėmėjas:<br>
-        <img src="image_1.png" class="ekspla-logo-fix"><br>
-        GŠG Mokinių Taryba
+        <img src="ekspla_skaidrus.png" class="ekspla-logo-final">
+        <br><br> GŠG Mokinių Taryba<br>
+        © 2026
     </div>
 </div>
 
 <script>
     // --- SUPABASE KONFIGŪRACIJA ---
     const SB_URL = "https://yvnifbghzoqmkslesgkh.supabase.co";
-    // Tavo pilnas Anon Key iš Legacy skilties
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2bmlmYmdoem9xbWtzbGVzZ2toIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0OTc4MjYsImV4cCI6MjA4OTA3MzgyNn0.n_9T9i7tRNtBb8Q-MQ_9ZTiv5DDo8TVYq9AtzOLQTr8"; 
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2bmlmYmdoem9xbWtzbGVzZ2toIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MTAyMDcsImV4cCI6MjA4OTM4NjIwN30.T9n8y1n9i1n9i1n9i1n9i1n9i1n9i1n9i1n9i1n9i1n"; 
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
     let currentTeam = "", qIdx = 0, score = 0, startTime, scanner;
@@ -181,7 +184,7 @@
         const time = document.getElementById('add-time').value;
         if(!name) return alert("Įveskite pavadinimą");
         const { error } = await _supabase.from('rezultatai').insert([{ team: name, score: pts, time_str: time }]);
-        if (error) alert("Klaida įrašant! Patikrink ar lentelė sukurta ir RLS išjungtas.");
+        if (error) alert("Klaida įrašant!");
         else { alert("Pridėta sėkmingai!"); document.getElementById('add-name').value = ""; renderTop3(); }
     }
 
