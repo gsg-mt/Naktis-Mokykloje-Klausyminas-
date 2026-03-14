@@ -13,30 +13,30 @@
             background-size: cover; color: white; display: flex; justify-content: center; min-height: 100vh;
         }
         .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; }
-        .logo-img { max-width: 90%; height: auto; mix-blend-mode: screen; margin-bottom: 20px; }
+        .logo-img { max-width: 90%; height: auto; mix-blend-mode: screen; margin-bottom: 10px; }
         .card {
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
-            padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
         .menu-btn {
             background: transparent; border: 2px solid white; color: white;
-            padding: 15px; margin: 12px 0; width: 100%; border-radius: 12px;
-            font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase;
-            transition: 0.3s;
+            padding: 14px; margin: 10px 0; width: 100%; border-radius: 12px;
+            font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s;
         }
         .menu-btn:hover { background: white; color: black; }
         input, textarea { 
             width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; 
-            border: 1px solid white; background: transparent; color: white; 
-            text-align: center; font-size: 16px; outline: none;
+            border: 1px solid white; background: transparent; color: white; text-align: center; font-size: 16px;
         }
-        textarea { height: 80px; text-align: left; }
         .hidden { display: none; }
         #reader { border-radius: 15px; overflow: hidden; border: 2px solid white !important; margin-bottom: 10px; background: black; }
-        .status-badge { padding: 10px; border-radius: 8px; margin-bottom: 15px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; font-weight: bold; }
-        .unlocked { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; }
-        .sponsors { margin-top: 40px; font-size: 12px; text-transform: uppercase; opacity: 0.6; }
+        .status-badge { padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; background: rgba(255,255,255,0.1); }
+        .correct { border: 1px solid #22c55e; color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+        .wrong { border: 1px solid #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .top3-item { background: rgba(255,255,255,0.1); margin: 5px 0; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #facc15; }
+        .sponsor-logo { max-width: 150px; mix-blend-mode: screen; margin-top: 10px; }
+        .admin-controls { border-top: 1px solid #444; padding-top: 20px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -46,32 +46,32 @@
 
     <div class="card">
         <div id="main-menu">
-            <button class="menu-btn" onclick="showSection('team-selection')">Pasirinkti komandą</button>
-            <button class="menu-btn" onclick="showSection('admin-login')">GŠG Mokinių taryba</button>
-            <button class="menu-btn" onclick="showSection('qr-generator')">QR kodų darymas</button>
+            <button class="menu-btn" onclick="showSection('team-selection')">Pradėti žaidimą</button>
+            <button class="menu-btn" onclick="showSection('top3-section')">🏆 TOP 3 Lyderiai</button>
+            <button class="menu-btn" onclick="showSection('admin-login')">Mokinių taryba</button>
         </div>
 
         <div id="team-selection" class="hidden">
-            <h3>Įrašykite pavadinimą</h3>
-            <input type="text" id="team-name-input" placeholder="KOMANDOS VARDAS">
+            <h3>Komandos pavadinimas</h3>
+            <input type="text" id="team-name-input" placeholder="Įveskite vardą...">
             <button class="menu-btn" onclick="startQuiz()">PRADĖTI</button>
-            <button onclick="showSection('main-menu')" style="background:none; border:none; color:white; cursor:pointer;">Atgal</button>
+            <button onclick="showSection('main-menu')" style="background:none; border:none; color:grey; cursor:pointer;">Atgal</button>
         </div>
 
         <div id="quiz-step" class="hidden">
-            <div id="lock-status" class="status-badge">🔒 RASKITE QR KODĄ</div>
+            <div id="lock-status" class="status-badge">🔒 NUSKENUOKITE QR KODĄ</div>
             <div id="scanner-container" class="hidden">
                 <div id="reader"></div>
                 <button class="menu-btn" onclick="stopScanner()">Atšaukti</button>
             </div>
             <div id="quiz-content" class="hidden">
-                <p id="riddle-text" style="font-size: 1.1em; margin-bottom: 20px; font-weight: bold;"></p>
-                <input type="text" id="ans-input" placeholder="Atsakymas...">
+                <p id="riddle-text" style="font-weight: bold;"></p>
+                <input type="text" id="ans-input" placeholder="Atsakymas">
                 <button class="menu-btn" onclick="checkAnswer()">Tikrinti</button>
             </div>
-            <button id="open-scanner-btn" class="menu-btn" style="background: white; color: black;" onclick="startScanner()">📷 SKENUOTI KODĄ</button>
+            <button id="open-scanner-btn" class="menu-btn" style="background: white; color: black;" onclick="startScanner()">📷 SKENUOTI</button>
             <div id="next-loc" class="hidden">
-                <h3 style="color: #22c55e;">TEISINGAI! ✅</h3>
+                <div id="answer-feedback" class="status-badge"></div>
                 <p>Kita stotelė:</p>
                 <p id="location-text" style="font-weight: bold; color: #60a5fa;"></p>
                 <button class="menu-btn" onclick="prepareNext()">EITI TOLIAU</button>
@@ -79,51 +79,64 @@
         </div>
 
         <div id="finish-step" class="hidden">
-            <h2 style="color: #22c55e;">🎉 FINIŠAS!</h2>
-            <p>Sveikiname įveikus visas mįsles.</p>
-            <hr style="border: 0.5px solid rgba(255,255,255,0.2); margin: 20px 0;">
-            
-            <p style="font-size: 0.9em;">Palikite tarybai pranešimą (nebūtina):</p>
-            <form action="https://formspree.io/f/mojklbzq" method="POST">
-                <input type="hidden" name="Statusas" value="KOMANDA BAIGĖ ŽAIDIMĄ">
-                <input type="email" name="El_pastas" placeholder="Jūsų el. paštas (nebūtina)">
-                <textarea name="zinute" placeholder="Jūsų atsiliepimas arba komandos vardas..."></textarea>
-                <button type="submit" class="menu-btn" style="background: #22c55e; border-color: #22c55e;">SIŲSTI TARYBAI</button>
-            </form>
-            <button onclick="location.reload()" style="background:none; border:none; color:white; cursor:pointer; margin-top:10px;">Grįžti į pradžią</button>
+            <h2 style="color: #22c55e;">FINIŠAS! 🎉</h2>
+            <div id="final-stats" style="margin: 20px 0; line-height: 1.6;"></div>
+            <p style="font-size: 0.8em; color: #aaa;">Rezultatai automatiškai išsiųsti tarybai peržiūrai.</p>
+            <button class="menu-btn" onclick="location.reload()">Baigti</button>
+        </div>
+
+        <div id="top3-section" class="hidden">
+            <h3>🏆 Geriausios komandos</h3>
+            <div id="top3-list"></div>
+            <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
 
         <div id="admin-login" class="hidden">
-            <h3>TARYBOS LOGIN</h3>
-            <input type="text" id="admin-user" placeholder="Vartotojas">
+            <h3>Admin prisijungimas</h3>
             <input type="password" id="admin-pass" placeholder="Slaptažodis">
-            <button class="menu-btn" onclick="checkAdmin()">PRISIJUNGTI</button>
-            <button class="menu-btn" onclick="showSection('main-menu')">ATGAL</button>
+            <button class="menu-btn" onclick="checkAdmin()">Prisijungti</button>
+            <button onclick="showSection('main-menu')" style="background:none; border:none; color:grey; cursor:pointer;">Atgal</button>
         </div>
 
         <div id="admin-panel" class="hidden">
-            <h3>LOKALŪS REZULTATAI</h3>
-            <div id="results-list" style="text-align: left; margin-bottom: 20px;"></div>
-            <button class="menu-btn" onclick="showSection('main-menu')">ATSIJUNGTI</button>
+            <h3>Valdymo pultas</h3>
+            <div id="full-results-list" style="text-align: left; font-size: 0.9em; max-height: 200px; overflow-y: auto; margin-bottom: 20px;"></div>
+            
+            <div class="admin-controls">
+                <h4>Pridėti/Keisti rezultatą:</h4>
+                <input type="text" id="add-name" placeholder="Komandos vardas">
+                <input type="number" id="add-score" placeholder="Taškai">
+                <input type="text" id="add-time" placeholder="Laikas (pvz. 10:20)">
+                <button class="menu-btn" style="background: #22c55e; border:none;" onclick="adminAddResult()">Pridėti į TOP 3</button>
+                <button class="menu-btn" style="border-color: #ef4444; color: #ef4444;" onclick="clearResults()">Išvalyti viską</button>
+            </div>
+            <button class="menu-btn" onclick="showSection('main-menu')">Atsijungti</button>
         </div>
 
         <div id="qr-generator" class="hidden">
-            <h3>QR KŪRIMAS</h3>
-            <input type="text" id="qr-url" placeholder="Raktinis žodis">
-            <button class="menu-btn" onclick="generateQR()">GENERUOTI</button>
-            <div id="qrcode" style="background: white; padding: 10px; display: inline-block; margin-top: 10px; border-radius: 5px;"></div>
-            <button class="menu-btn" onclick="showSection('main-menu')">ATGAL</button>
+            <input type="text" id="qr-url" placeholder="Raktas">
+            <button class="menu-btn" onclick="generateQR()">Kurti QR</button>
+            <div id="qrcode" style="background:white; padding:10px; margin-top:10px; display:inline-block;"></div>
+            <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
     </div>
 
-    <div class="sponsors">Pagrindiniai rėmėjai: <b>GŠG Taryba</b></div>
+    <div class="sponsors">
+        Pagrindinis rėmėjas:<br>
+        <img src="https://raw.githubusercontent.com/JustDannie200/Naktis-Mokykloje-Klausyminas-/main/image_05a25e.png" class="sponsor-logo"><br>
+        GŠG Taryba
+    </div>
 </div>
 
 <script>
     let currentTeam = "";
     let qIdx = 0;
+    let score = 0;
+    let startTime;
     let scanner;
-    let gameResults = JSON.parse(localStorage.getItem('gsg_results')) || {};
+    
+    // Duomenys saugomi naršyklėje
+    let gameResults = JSON.parse(localStorage.getItem('gsg_official_results')) || [];
 
     const quizData = [
         { q: "Aš turiu šimtus lapų, bet nesu medis?", a: "knyga", key: "kodas1", loc: "Biblioteka" },
@@ -134,110 +147,128 @@
     function showSection(id) {
         document.querySelectorAll('.card > div').forEach(div => div.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
+        if(id === 'top3-section') renderTop3();
+        if(id === 'admin-panel') renderAdminList();
     }
 
     function startQuiz() {
         currentTeam = document.getElementById('team-name-input').value;
         if(!currentTeam) return alert("Įveskite pavadinimą!");
+        startTime = new Date();
         showSection('quiz-step');
         prepareNext();
     }
 
-    // --- FONINIS SIUNTIMAS (Formspree API) ---
-    function siustiRezultata(komanda, taskas) {
-        fetch("https://formspree.io/f/mojklbzq", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                Komanda: komanda, 
-                Taskas: taskas,
-                Tipas: "Automatinis progresas"
-            })
-        });
-    }
-
     function checkAnswer() {
         const val = document.getElementById('ans-input').value.toLowerCase().trim();
+        const feedback = document.getElementById('answer-feedback');
         if(val === quizData[qIdx].a) {
-            siustiRezultata(currentTeam, qIdx + 1);
-            document.getElementById('quiz-content').classList.add('hidden');
-            document.getElementById('next-loc').classList.remove('hidden');
-            document.getElementById('location-text').innerText = quizData[qIdx].loc;
-            gameResults[currentTeam] = (gameResults[currentTeam] || 0) + 1;
-            localStorage.setItem('gsg_results', JSON.stringify(gameResults));
+            score++;
+            feedback.innerText = "TEISINGAI! ✅";
+            feedback.className = "status-badge correct";
         } else {
-            alert("Neteisingas atsakymas!");
+            feedback.innerText = "NETEISINGAI ❌ (Atsakymas: " + quizData[qIdx].a + ")";
+            feedback.className = "status-badge wrong";
         }
-    }
-
-    // --- SKENAVIMAS ---
-    function startScanner() {
-        document.getElementById('scanner-container').classList.remove('hidden');
-        document.getElementById('open-scanner-btn').classList.add('hidden');
-        scanner = new Html5Qrcode("reader");
-        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, 
-            (decodedText) => {
-                if(decodedText.trim() === quizData[qIdx].key) {
-                    unlockQuestion();
-                    stopScanner();
-                } else { alert("Netinkamas kodas!"); }
-            }
-        ).catch(err => alert("Kameros klaida!"));
-    }
-
-    function stopScanner() {
-        if(scanner) {
-            scanner.stop().then(() => {
-                document.getElementById('scanner-container').classList.add('hidden');
-                document.getElementById('open-scanner-btn').classList.remove('hidden');
-            });
-        }
-    }
-
-    function unlockQuestion() {
-        const status = document.getElementById('lock-status');
-        status.innerText = "🔓 ATRAKINTA";
-        status.className = "status-badge unlocked";
-        document.getElementById('quiz-content').classList.remove('hidden');
-        document.getElementById('riddle-text').innerText = quizData[qIdx].q;
-        document.getElementById('open-scanner-btn').classList.add('hidden');
+        document.getElementById('quiz-content').classList.add('hidden');
+        document.getElementById('next-loc').classList.remove('hidden');
+        document.getElementById('location-text').innerText = quizData[qIdx].loc;
+        
+        // Formspree foninis siuntimas tarybai
+        siustiFormspree(currentTeam, score, qIdx + 1);
     }
 
     function prepareNext() {
         if(qIdx >= quizData.length - 1 && !document.getElementById('next-loc').classList.contains('hidden')) {
-            showSection('finish-step');
+            finishGame();
             return;
         }
         if(!document.getElementById('next-loc').classList.contains('hidden')) qIdx++;
         document.getElementById('next-loc').classList.add('hidden');
-        document.getElementById('quiz-content').classList.add('hidden');
         document.getElementById('open-scanner-btn').classList.remove('hidden');
-        const status = document.getElementById('lock-status');
-        status.innerText = "🔒 RASKITE QR KODĄ";
-        status.className = "status-badge";
+        document.getElementById('lock-status').innerText = "🔒 RASKITE QR KODĄ";
         document.getElementById('ans-input').value = "";
     }
 
-    function checkAdmin() {
-        if(document.getElementById('admin-user').value === "admin" && document.getElementById('admin-pass').value === "gsg2026") {
-            renderResults();
-            showSection('admin-panel');
-        } else { alert("Klaida!"); }
+    function finishGame() {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const timeStr = Math.floor(diff / 60) + ":" + (diff % 60).toString().padStart(2, '0');
+        showSection('finish-step');
+        document.getElementById('final-stats').innerHTML = `Komanda: ${currentTeam}<br>Taškai: ${score}/${quizData.length}<br>Laikas: ${timeStr}`;
     }
 
-    function renderResults() {
-        const list = document.getElementById('results-list');
-        list.innerHTML = "";
-        for (let t in gameResults) {
-            list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #444">${t}: ${gameResults[t]} taškai</div>`;
+    // --- ADMIN FUNKCIJOS ---
+    function adminAddResult() {
+        const name = document.getElementById('add-name').value;
+        const pts = parseInt(document.getElementById('add-score').value);
+        const time = document.getElementById('add-time').value;
+
+        if(!name || isNaN(pts)) return alert("Užpildykite duomenis!");
+
+        gameResults.push({ team: name, score: pts, timeStr: time });
+        localStorage.setItem('gsg_official_results', JSON.stringify(gameResults));
+        renderAdminList();
+        alert("Pridėta!");
+    }
+
+    function renderTop3() {
+        const list = document.getElementById('top3-list');
+        const sorted = [...gameResults].sort((a, b) => b.score - a.score).slice(0, 3);
+        list.innerHTML = sorted.length ? "" : "Rezultatų dar nėra.";
+        sorted.forEach((r, i) => {
+            list.innerHTML += `<div class="top3-item"><span>${i+1}. ${r.team}</span> <span>${r.score} tšk. (${r.timeStr})</span></div>`;
+        });
+    }
+
+    function renderAdminList() {
+        const div = document.getElementById('full-results-list');
+        div.innerHTML = "<b>Visi įrašai:</b><br>";
+        gameResults.forEach((r, i) => {
+            div.innerHTML += `${i+1}. ${r.team} - ${r.score} tšk. <br>`;
+        });
+    }
+
+    function clearResults() {
+        if(confirm("Ištrinti visus rezultatus?")) {
+            gameResults = [];
+            localStorage.setItem('gsg_official_results', JSON.stringify(gameResults));
+            renderAdminList();
         }
     }
 
+    function checkAdmin() {
+        if(document.getElementById('admin-pass').value === "gsg2026") showSection('admin-panel');
+        else alert("Neteisingas slaptažodis!");
+    }
+
+    // --- PAGALBINĖS ---
+    function siustiFormspree(team, pts, step) {
+        fetch("https://formspree.io/f/mojklbzq", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ komanda: team, taskai: pts, etapas: step })
+        });
+    }
+
+    function startScanner() {
+        document.getElementById('scanner-container').classList.remove('hidden');
+        document.getElementById('open-scanner-btn').classList.add('hidden');
+        scanner = new Html5Qrcode("reader");
+        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+            if(text.trim() === quizData[qIdx].key) {
+                document.getElementById('lock-status').innerText = "🔓 ATRAKINTA";
+                document.getElementById('quiz-content').classList.remove('hidden');
+                document.getElementById('riddle-text').innerText = quizData[qIdx].q;
+                stopScanner();
+            }
+        }).catch(err => console.error(err));
+    }
+
+    function stopScanner() { if(scanner) scanner.stop().then(() => document.getElementById('scanner-container').classList.add('hidden')); }
+    
     function generateQR() {
-        const txt = document.getElementById('qr-url').value;
-        if(!txt) return;
         document.getElementById('qrcode').innerHTML = "";
-        new QRCode(document.getElementById("qrcode"), { text: txt, width: 128, height: 128 });
+        new QRCode(document.getElementById("qrcode"), { text: document.getElementById('qr-url').value, width: 128, height: 128 });
     }
 </script>
 </body>
