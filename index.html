@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naktis Mokykloje</title>
+    <title>Naktis Mokykloje | GŠG</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
-            margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('fonas.gif') no-repeat center center fixed;
             background-size: cover; color: white; display: flex; justify-content: center; min-height: 100vh;
         }
         .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; }
         .logo-img { max-width: 90%; height: auto; mix-blend-mode: screen; margin-bottom: 10px; }
         .card {
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
             padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
         }
         .menu-btn {
             background: transparent; border: 2px solid white; color: white;
@@ -29,89 +29,95 @@
         .hidden { display: none; }
         input, textarea { 
             width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; 
-            border: 1px solid white; background: transparent; color: white; text-align: center; font-size: 16px;
+            border: 1px solid white; background: rgba(255,255,255,0.05); color: white; text-align: center; font-size: 16px; outline: none;
         }
         .list-item { background: rgba(255,255,255,0.1); margin: 8px 0; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #facc15; }
-        .status-badge { padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; background: rgba(255,255,255,0.1); }
+        .status-badge { padding: 12px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; }
         .correct { border: 1px solid #22c55e; color: #22c55e; background: rgba(34, 197, 94, 0.1); }
         .wrong { border: 1px solid #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-        .sponsor-logo { max-width: 160px; margin-top: 10px; filter: brightness(0) invert(1); opacity: 0.9; }
-        .sponsors { margin-top: 40px; font-size: 12px; text-transform: uppercase; opacity: 0.7; }
+        .sponsor-logo { max-width: 160px; margin-top: 15px; filter: brightness(0) invert(1); opacity: 0.9; }
+        .sponsors { margin-top: 40px; font-size: 12px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; }
+        #reader { border-radius: 15px; overflow: hidden; border: 2px solid white !important; margin-bottom: 15px; background: black; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <img src="logo.jpg" class="logo-img">
+
     <div class="card">
         <div id="main-menu">
             <button class="menu-btn" onclick="showSection('team-selection')">Pradėti žaidimą</button>
             <button class="menu-btn" onclick="showSection('schedule-section')">📅 Tvarkaraštis</button>
-            <button class="menu-btn" onclick="showSection('top3-section')">🏆 TOP 3 Rezultatai</button>
+            <button class="menu-btn" onclick="showSection('top3-section')">🏆 TOP 3 Lyderiai</button>
             <button class="menu-btn" onclick="showSection('admin-login')">Mokinių taryba</button>
         </div>
 
         <div id="schedule-section" class="hidden">
             <h3>Renginio eiga</h3>
             <div class="list-item"><span>19:00</span> <span>Atidarymas</span></div>
-            <div class="list-item"><span>20:00</span> <span>Žaidimo pradžia</span></div>
-            <div class="list-item"><span>00:00</span> <span>Apdovanojimai</span></div>
+            <div class="list-item"><span>20:00</span> <span>Orientacinės</span></div>
+            <div class="list-item"><span>23:00</span> <span>Pica ir filmas</span></div>
+            <div class="list-item"><span>01:00</span> <span>Apdovanojimai</span></div>
             <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
 
         <div id="team-selection" class="hidden">
             <h3>Komandos pavadinimas</h3>
-            <input type="text" id="team-name-input" placeholder="Vardas...">
+            <input type="text" id="team-name-input" placeholder="Įveskite vardą...">
             <button class="menu-btn" onclick="startQuiz()">PRADĖTI</button>
+            <button onclick="showSection('main-menu')" style="background:none; border:none; color:grey; cursor:pointer;">Atšaukti</button>
         </div>
 
         <div id="quiz-step" class="hidden">
-            <div id="lock-status" class="status-badge">🔒 RASKITE QR KODĄ</div>
+            <div id="lock-status" class="status-badge" style="background: rgba(255,255,255,0.1);">🔒 RASKITE QR KODĄ</div>
             <div id="scanner-container" class="hidden">
                 <div id="reader"></div>
                 <button class="menu-btn" onclick="stopScanner()">Atšaukti</button>
             </div>
             <div id="quiz-content" class="hidden">
-                <p id="riddle-text"></p>
+                <p id="riddle-text" style="font-size: 18px; line-height: 1.4;"></p>
                 <input type="text" id="ans-input" placeholder="Atsakymas">
                 <button class="menu-btn" onclick="checkAnswer()">Tikrinti</button>
             </div>
-            <button id="open-scanner-btn" class="menu-btn" style="background: white; color: black;" onclick="startScanner()">📷 SKENUOTI</button>
+            <button id="open-scanner-btn" class="menu-btn" style="background: white; color: black;" onclick="startScanner()">📷 SKENUOTI KODĄ</button>
             <div id="next-loc" class="hidden">
                 <div id="answer-feedback" class="status-badge"></div>
                 <p>Kita stotelė:</p>
-                <p id="location-text" style="font-weight: bold; color: #60a5fa;"></p>
+                <p id="location-text" style="font-weight: bold; color: #60a5fa; font-size: 20px;"></p>
                 <button class="menu-btn" onclick="prepareNext()">EITI TOLIAU</button>
             </div>
         </div>
 
         <div id="finish-step" class="hidden">
             <h2 style="color: #22c55e;">FINIŠAS! 🎉</h2>
-            <div id="final-stats"></div>
+            <div id="final-stats" style="margin: 20px 0; font-size: 18px;"></div>
+            <p style="font-size: 13px; color: #aaa;">Jūsų rezultatas užfiksuotas sistemoje.</p>
             <button class="menu-btn" onclick="location.reload()">Baigti</button>
         </div>
 
         <div id="top3-section" class="hidden">
-            <h3>🏆 Geriausi (Visi mato)</h3>
-            <div id="top3-list">Kraunama iš bazės...</div>
+            <h3>🏆 TOP 3 Rezultatai</h3>
+            <div id="top3-list">Kraunama...</div>
             <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
 
         <div id="admin-login" class="hidden">
+            <h3>Tarybos prisijungimas</h3>
             <input type="password" id="admin-pass" placeholder="Slaptažodis">
             <button class="menu-btn" onclick="checkAdmin()">Prisijungti</button>
         </div>
-
         <div id="admin-panel" class="hidden">
-            <h3>Admin valdymas</h3>
+            <h3>Valdymas</h3>
             <input type="text" id="add-name" placeholder="Komanda">
             <input type="number" id="add-score" placeholder="Taškai">
             <input type="text" id="add-time" placeholder="Laikas">
-            <button class="menu-btn" style="background: #22c55e;" onclick="adminAddResult()">Įrašyti į TOP 3</button>
-            <button class="menu-btn" style="color: red; border-color: red;" onclick="clearResults()">Išvalyti bazę</button>
+            <button class="menu-btn" style="background: #22c55e; border:none;" onclick="adminAddResult()">Įrašyti į bazę</button>
+            <button class="menu-btn" style="color: #ef4444; border-color: #ef4444;" onclick="clearResults()">Išvalyti viską</button>
             <button class="menu-btn" onclick="showSection('main-menu')">Atsijungti</button>
         </div>
     </div>
+
     <div class="sponsors">
         Pagrindinis rėmėjas:<br>
         <img src="download.png" class="sponsor-logo"><br>
@@ -120,7 +126,7 @@
 </div>
 
 <script>
-    // --- SUPABASE KONFIGŪRACIJA (JAU SUTVARKYTA) ---
+    // --- SUPABASE KONFIGŪRACIJA ---
     const SB_URL = "https://yvnifbghzoqmkslesgkh.supabase.co";
     const SB_KEY = "sb_publishable_SZjIEZ1zXhweoejt5n1ZzA_MfgtIuA8367f08c0274e76092d6e38c92bdfb326a27e770"; 
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
@@ -142,8 +148,8 @@
     async function renderTop3() {
         const list = document.getElementById('top3-list');
         const { data, error } = await _supabase.from('rezultatai').select('*').order('score', { ascending: false }).limit(3);
-        if (error) return list.innerHTML = "Klaida užkraunant bazę.";
-        list.innerHTML = data.length ? "" : "Nėra jokių rezultatų.";
+        if (error) return list.innerHTML = "Klaida jungiantis prie bazės.";
+        list.innerHTML = data && data.length ? "" : "Rezultatų dar nėra.";
         data.forEach((r, i) => {
             list.innerHTML += `<div class="list-item"><span>${i+1}. ${r.team}</span> <span>${r.score} tšk. (${r.time_str})</span></div>`;
         });
@@ -153,21 +159,21 @@
         const name = document.getElementById('add-name').value;
         const pts = document.getElementById('add-score').value;
         const time = document.getElementById('add-time').value;
-        if(!name) return alert("Įveskite vardą");
+        if(!name) return alert("Įveskite pavadinimą");
         const { error } = await _supabase.from('rezultatai').insert([{ team: name, score: pts, time_str: time }]);
-        if (error) { alert("Klaida! Patikrink ar sukurta lentelė 'rezultatai'"); console.error(error); }
-        else { alert("Pridėta sėkmingai!"); document.getElementById('add-name').value = ""; renderTop3(); }
+        if (error) { alert("Klaida! Patikrink RLS ir lentelės vardą."); console.error(error); }
+        else { alert("Sėkmingai pridėta!"); document.getElementById('add-name').value = ""; renderTop3(); }
     }
 
     async function clearResults() {
-        if(!confirm("Tikrai ištrinti VISUS rezultatus?")) return;
-        const { error } = await _supabase.from('rezultatai').delete().neq('id', 0);
-        if(!error) { alert("Bazė išvalyta"); renderTop3(); }
+        if(!confirm("Ar tikrai norite ištrinti VISUS rezultatus?")) return;
+        const { error } = await _supabase.from('rezultatai').delete().neq('team', 'null');
+        if(!error) { alert("Išvalyta."); renderTop3(); }
     }
 
     function startQuiz() {
         currentTeam = document.getElementById('team-name-input').value;
-        if(!currentTeam) return;
+        if(!currentTeam) return alert("Įrašykite vardą!");
         startTime = new Date();
         showSection('quiz-step');
         prepareNext();
@@ -176,11 +182,24 @@
     function checkAnswer() {
         const val = document.getElementById('ans-input').value.toLowerCase().trim();
         const feedback = document.getElementById('answer-feedback');
-        if(val === quizData[qIdx].a) { score++; feedback.innerText = "TEISINGAI! ✅"; feedback.className = "status-badge correct"; }
-        else { feedback.innerText = "NETEISINGAI ❌"; feedback.className = "status-badge wrong"; }
+        if(val === quizData[qIdx].a) { 
+            score++; 
+            feedback.innerText = "TEISINGAI! ✅"; 
+            feedback.className = "status-badge correct"; 
+        } else { 
+            feedback.innerText = "NETEISINGAI ❌ (Atsakymas: " + quizData[qIdx].a + ")"; 
+            feedback.className = "status-badge wrong"; 
+        }
         document.getElementById('quiz-content').classList.add('hidden');
         document.getElementById('next-loc').classList.remove('hidden');
         document.getElementById('location-text').innerText = quizData[qIdx].loc;
+        
+        // Atsarginis siuntimas į Formspree (nebūtina, bet palikau tavo užtikrinimui)
+        fetch("https://formspree.io/f/mojklbzq", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ komanda: currentTeam, taskas: qIdx + 1, teisingas: val === quizData[qIdx].a })
+        });
     }
 
     function prepareNext() {
@@ -188,7 +207,7 @@
             const diff = Math.floor((new Date() - startTime) / 1000);
             const timeStr = Math.floor(diff / 60) + ":" + (diff % 60).toString().padStart(2, '0');
             showSection('finish-step');
-            document.getElementById('final-stats').innerHTML = `Taškai: ${score}/${quizData.length}<br>Laikas: ${timeStr}`;
+            document.getElementById('final-stats').innerHTML = `Komanda: <b>${currentTeam}</b><br>Taškai: <b>${score} / ${quizData.length}</b><br>Laikas: <b>${timeStr}</b>`;
             return;
         }
         if(!document.getElementById('next-loc').classList.contains('hidden')) qIdx++;
@@ -198,7 +217,10 @@
         document.getElementById('ans-input').value = "";
     }
 
-    function checkAdmin() { if(document.getElementById('admin-pass').value === "gsg2026") showSection('admin-panel'); }
+    function checkAdmin() { 
+        if(document.getElementById('admin-pass').value === "gsg2026") showSection('admin-panel'); 
+        else alert("Neteisingas slaptažodis!");
+    }
 
     function startScanner() {
         document.getElementById('scanner-container').classList.remove('hidden');
@@ -210,11 +232,20 @@
                 document.getElementById('riddle-text').innerText = quizData[qIdx].q;
                 stopScanner();
                 document.getElementById('open-scanner-btn').classList.add('hidden');
+            } else {
+                alert("Neteisingas QR kodas!");
             }
-        });
+        }).catch(err => alert("Kameros klaida. Suteikite leidimą."));
     }
 
-    function stopScanner() { if(scanner) scanner.stop().then(() => document.getElementById('scanner-container').classList.add('hidden')); }
+    function stopScanner() { 
+        if(scanner) {
+            scanner.stop().then(() => {
+                document.getElementById('scanner-container').classList.add('hidden');
+                document.getElementById('open-scanner-btn').classList.remove('hidden');
+            });
+        }
+    }
 </script>
 </body>
 </html>
