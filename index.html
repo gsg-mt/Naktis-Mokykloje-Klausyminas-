@@ -3,6 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mokyklos Žaidimas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --p: #2563eb; --bg: #f1f5f9; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
+        .menu-btn { background: white; border: 2px solid var(--p); color: var(--p); padding: 15px; margin: 10px 0; width: 100%; border-radius: 10px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
+        .menu-btn:hover { background: var(--p); color: white; }
+        .hidden { display: none; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: var(--p); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .qr-box { margin: 20px auto; padding: 10px; background: #eee; display: inline-block; }
+        .result-row { text-align: left; border-bottom: 1px solid #eee; padding: 10px 0; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="main-menu">
+        <h2>🏫 Pagrindinis Meniu</h2>
+        <button class="menu-btn" onclick="showSection('team-selection')">1. Pasirinkti komandą</button>
+        <button class="menu-btn" onclick="showSection('admin-login')">2. GŠG Mokinių taryba</button>
+        <button class="menu-btn" onclick="showSection('qr-generator')">3. QR kodų darymas</button>
+    </div>
+
+    <div id="team-selection" class="hidden">
+        <h3>Pasirinkite savo numerį</h3>
+        <select id="team-id-select">
+            <option value="1">1 Komanda</option>
+            <option value="2">2 Komanda</option>
+            <option value="3">3 Komanda</option>
+            <option value="4">4 Komanda</option>
+            <option value="5">5 Komanda</option>
+        </select>
+        <button onclick="goToNaming()">Toliau</button>
+        <button onclick="showSection('main-menu')" style="background:#666">Grįžti</button>
+    </div>
+
+    <div id="team-naming" class="hidden">
+        <h3>Įrašykite komandos pavadinimą</h3>
+        <p id="selected-team-num"></p>
+        <input type="text" id="team-name-input" placeholder="Pavadinimas...">
+        <button onclick="startQuiz()">Pradėti mįsles</button>
+    </div>
+
+    <div id="quiz-step" class="hidden">
+        <h3 id="display-team-name"></h3>
+        <select id="q-select" onchange="updateRiddle()">
+            <option value="0">1 Mįslė</option>
+            <option value="1">2 Mįslė</option>
+            <option value="2">3 Mįslė</option>
+            </select>
+        <div style="background:#fff9db; padding:15px; margin:10px 0;" id="riddle-text">Mįslės tekstas...</div>
+        <input type="text" id="ans-input" placeholder="Atsakymas...">
+        <button onclick="saveAns()">Pateikti</button>
+        <button onclick="showSection('main-menu')" style="background:#666">Meniu</button>
+    </div>
+
+    <div id="admin-login" class="hidden">
+        <h3>Tarybos prisijungimas</h3>
+        <input type="text" id="admin-user" placeholder="Vartotojas">
+        <input type="password" id="admin-pass" placeholder="Slaptažodis">
+        <button onclick="checkAdmin()">Prisijungti</button>
+        <button onclick="showSection('main-menu')" style="background:#666">Grįžti</button>
+    </div>
+
+    <div id="admin-panel" class="hidden">
+        <h3>Visų komandų rezultatai</h3>
+        <div id="results-list"></div>
+        <button onclick="showSection('main-menu')">Atsijungti</button>
+    </div>
+
+    <div id="qr-generator" class="hidden">
+        <h3>QR Kodų kūrimas</h3>
+        <p>Sugeneruokite nuorodą kiekvienai komandai:</p>
+        <input type="text" id="qr-url" placeholder="Svetainės nuoroda">
+        <button onclick="generateQR()">Generuoti QR</button>
+        <div id="qrcode" class="qr-box"></div>
+        <button onclick="showSection('main-menu')" style="background:#666">Grįžti</button>
+    </div>
+</div>
+
+<script>
+    let currentTeam = "";
+    const riddles = ["Aš turiu šimtus lapų, bet nesu medis?", "Aš turiu tinklą, bet žuvies negaudau?", "Kuo daugiau atimi, tuo didesnis?"];
+    
+    // Duomenų saugykla (LOKALI - veikia tik tam įrenginyje)
+    let gameData = JSON.parse(localStorage.getItem('gsg_data')) || {};
+
+    function showSection(id) {
+        document.querySelectorAll('.card > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function goToNaming() {
+        const id = document.getElementById('team-id-select').value;
+        document.getElementById('selected-team-num').innerText = "Jūs pasirinkote " + id + " komandą";
+        showSection('team-naming');
+    }
+
+    function startQuiz() {
+        currentTeam = document.getElementById('team-name-input').value;
+        if(!currentTeam) return alert("Įveskite pavadinimą!");
+        
+        if(!gameData[currentTeam]) gameData[currentTeam] = [];
+        
+        document.getElementById('display-team-name').innerText = currentTeam;
+        updateRiddle();
+        showSection('quiz-step');
+    }
+
+    function updateRiddle() {
+        const idx = document.getElementById('q-select').value;
+        document.getElementById('riddle-text').innerText = riddles[idx] || "Mįslė neįvesta";
+    }
+
+    function saveAns() {
+        const idx = document.getElementById('q-select').value;
+        const ans = document.getElementById('ans-input').value;
+        gameData[currentTeam][idx] = ans;
+        localStorage.setItem('gsg_data', JSON.stringify(gameData));
+        alert("Išsaugota!");
+        document.getElementById('ans-input').value = "";
+    }
+
+    function checkAdmin() {
+        const user = document.getElementById('admin-user').value;
+        const pass = document.getElementById('admin-pass').value;
+        if(user === "admin" && pass === "gsg2026") {
+            renderResults();
+            showSection('admin-panel');
+        } else {
+            alert("Neteisingi duomenys!");
+        }
+    }
+
+    function renderResults() {
+        const list = document.getElementById('results-list');
+        list.innerHTML = "";
+        for (let t in gameData) {
+            let div = document.createElement('div');
+            div.className = "result-row";
+            div.innerHTML = `<strong>${t}:</strong> ${gameData[t].filter(a => a).length} atsakymai`;
+            list.appendChild(div);
+        }
+    }
+
+    function generateQR() {
+        const url = document.getElementById('qr-url').value;
+        document.getElementById('qrcode').innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), url);
+    }
+</script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mokyklos Mįslių Medžioklė</title>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; }
