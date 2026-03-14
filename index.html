@@ -3,33 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mokyklos Žaidimas</title>
+    <title>GŠG Naktis Mokykloje</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --p: #2563eb; --bg: #f1f5f9; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
-        .menu-btn { background: white; border: 2px solid var(--p); color: var(--p); padding: 15px; margin: 10px 0; width: 100%; border-radius: 10px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
-        .menu-btn:hover { background: var(--p); color: white; }
+        :root { --primary: #2563eb; --success: #22c55e; --error: #ef4444; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
+        
+        .menu-btn { background: white; border: 2px solid var(--primary); color: var(--primary); padding: 18px; margin: 12px 0; width: 100%; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700; transition: all 0.2s; }
+        .menu-btn:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+        
         .hidden { display: none; }
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { background: var(--p); color: white; border: none; font-weight: bold; cursor: pointer; }
-        .qr-box { margin: 20px auto; padding: 10px; background: #eee; display: inline-block; }
-        .result-row { text-align: left; border-bottom: 1px solid #eee; padding: 10px 0; }
+        input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; outline: none; }
+        
+        .action-btn { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .action-btn:active { transform: scale(0.98); }
+
+        .feedback { padding: 15px; border-radius: 10px; margin: 15px 0; font-weight: bold; display: none; }
+        .feedback.correct { display: block; background: #dcfce7; color: var(--success); border: 1px solid var(--success); }
+        .feedback.wrong { display: block; background: #fee2e2; color: var(--error); border: 1px solid var(--error); }
+        
+        .next-loc { background: #eff6ff; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 5px solid var(--primary); text-align: left; display: none; }
+        .qr-box { margin-top: 20px; padding: 15px; background: white; border: 1px solid #ddd; display: inline-block; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div id="main-menu">
-        <h2>🏫 Pagrindinis Meniu</h2>
+        <h2 style="color: var(--primary)">🏫 GŠG Žaidimas</h2>
         <button class="menu-btn" onclick="showSection('team-selection')">1. Pasirinkti komandą</button>
         <button class="menu-btn" onclick="showSection('admin-login')">2. GŠG Mokinių taryba</button>
         <button class="menu-btn" onclick="showSection('qr-generator')">3. QR kodų darymas</button>
     </div>
 
     <div id="team-selection" class="hidden">
-        <h3>Pasirinkite savo numerį</h3>
+        <h3>Kas žaidžia?</h3>
         <select id="team-id-select">
             <option value="1">1 Komanda</option>
             <option value="2">2 Komanda</option>
@@ -37,123 +46,148 @@
             <option value="4">4 Komanda</option>
             <option value="5">5 Komanda</option>
         </select>
-        <button onclick="goToNaming()">Toliau</button>
-        <button onclick="showSection('main-menu')" style="background:#666">Grįžti</button>
+        <button class="action-btn" onclick="goToNaming()">Toliau</button>
+        <button onclick="showSection('main-menu')" style="background:none; border:none; color:#666; cursor:pointer">Grįžti atgal</button>
     </div>
 
     <div id="team-naming" class="hidden">
-        <h3>Įrašykite komandos pavadinimą</h3>
-        <p id="selected-team-num"></p>
-        <input type="text" id="team-name-input" placeholder="Pavadinimas...">
-        <button onclick="startQuiz()">Pradėti mįsles</button>
+        <h3>Sukurkite pavadinimą</h3>
+        <input type="text" id="team-name-input" placeholder="Komandos vardas...">
+        <button class="action-btn" onclick="startQuiz()">Pradėti nuotykį!</button>
     </div>
 
     <div id="quiz-step" class="hidden">
-        <h3 id="display-team-name"></h3>
-        <select id="q-select" onchange="updateRiddle()">
-            <option value="0">1 Mįslė</option>
-            <option value="1">2 Mįslė</option>
-            <option value="2">3 Mįslė</option>
-            </select>
-        <div style="background:#fff9db; padding:15px; margin:10px 0;" id="riddle-text">Mįslės tekstas...</div>
-        <input type="text" id="ans-input" placeholder="Atsakymas...">
-        <button onclick="saveAns()">Pateikti</button>
-        <button onclick="showSection('main-menu')" style="background:#666">Meniu</button>
+        <div id="progress-bar" style="font-size: 12px; color: #888; margin-bottom: 5px;"></div>
+        <h3 id="display-team-name" style="margin-top: 0; color: var(--primary)"></h3>
+        
+        <div style="background:#f1f5f9; padding:20px; border-radius:12px; min-height: 60px; display: flex; align-items: center; justify-content: center; font-weight: 500;" id="riddle-text"></div>
+        
+        <div id="feedback-area" class="feedback"></div>
+
+        <div id="input-area">
+            <input type="text" id="ans-input" placeholder="Jūsų atsakymas...">
+            <button class="action-btn" onclick="checkAnswer()">Tikrinti atsakymą</button>
+        </div>
+
+        <div id="next-location-box" class="next-loc">
+            <strong>📍 Kita stotelė:</strong><br>
+            <span id="location-text"></span>
+            <button class="action-btn" style="margin-top:10px" onclick="nextQuestion()">Eiti į kitą klausimą</button>
+        </div>
     </div>
 
     <div id="admin-login" class="hidden">
         <h3>Tarybos prisijungimas</h3>
         <input type="text" id="admin-user" placeholder="Vartotojas">
         <input type="password" id="admin-pass" placeholder="Slaptažodis">
-        <button onclick="checkAdmin()">Prisijungti</button>
-        <button onclick="showSection('main-menu')" style="background:#666">Grįžti</button>
+        <button class="action-btn" onclick="checkAdmin()">Prisijungti</button>
+        <button onclick="showSection('main-menu')" style="background:none; border:none; color:#666">Grįžti</button>
     </div>
 
     <div id="admin-panel" class="hidden">
-        <h3>Visų komandų rezultatai</h3>
-        <div id="results-list"></div>
-        <button onclick="showSection('main-menu')">Atsijungti</button>
+        <h3>Rezultatai</h3>
+        <div id="results-list" style="text-align: left; margin-bottom: 20px;"></div>
+        <button class="action-btn" onclick="showSection('main-menu')">Atsijungti</button>
     </div>
 
     <div id="qr-generator" class="hidden">
-        <h3>QR Kodų kūrimas</h3>
-        <p>Sugeneruokite nuorodą kiekvienai komandai:</p>
-        <input type="text" id="qr-url" placeholder="Svetainės nuoroda">
-        <button onclick="generateQR()">Generuoti QR</button>
+        <h3>QR Generavimas</h3>
+        <input type="text" id="qr-url" placeholder="Įklijuokite nuorodą">
+        <button class="action-btn" onclick="generateQR()">Sukurti QR kodą</button>
         <div id="qrcode" class="qr-box"></div>
-        <button onclick="showSection('main-menu')" style="background:#666">Grįžti</button>
+        <button onclick="showSection('main-menu')" style="background:none; border:none; color:#666; display:block; width:100%">Grįžti</button>
     </div>
 </div>
 
 <script>
-    let currentTeam = "";
-    const riddles = ["Aš turiu šimtus lapų, bet nesu medis?", "Aš turiu tinklą, bet žuvies negaudau?", "Kuo daugiau atimi, tuo didesnis?"];
+    let currentTeamName = "";
+    let qIdx = 0;
     
-    // Duomenų saugykla (LOKALI - veikia tik tam įrenginyje)
-    let gameData = JSON.parse(localStorage.getItem('gsg_data')) || {};
+    // ČIA SURAŠYKI MĮSLES, ATSAKYMUS IR VIETAS
+    const quizData = [
+        { q: "Aš turiu šimtus lapų, bet nesu medis. Kas aš?", a: "knyga", loc: "Eikite prie sporto salės durų." },
+        { q: "Aš turiu tinklą, bet žuvies negaudau. Kas aš?", a: "krepsinis", loc: "Ieškokite QR kodo prie valgyklos." },
+        { q: "Kuo daugiau iš manęs atimi, tuo didesnis tampu?", a: "duobe", loc: "Laukite instrukcijų fojė." }
+    ];
+
+    let gameResults = JSON.parse(localStorage.getItem('gsg_results')) || {};
 
     function showSection(id) {
         document.querySelectorAll('.card > div').forEach(div => div.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
     }
 
-    function goToNaming() {
-        const id = document.getElementById('team-id-select').value;
-        document.getElementById('selected-team-num').innerText = "Jūs pasirinkote " + id + " komandą";
-        showSection('team-naming');
-    }
+    function goToNaming() { showSection('team-naming'); }
 
     function startQuiz() {
-        currentTeam = document.getElementById('team-name-input').value;
-        if(!currentTeam) return alert("Įveskite pavadinimą!");
-        
-        if(!gameData[currentTeam]) gameData[currentTeam] = [];
-        
-        document.getElementById('display-team-name').innerText = currentTeam;
-        updateRiddle();
+        currentTeamName = document.getElementById('team-name-input').value;
+        if(!currentTeamName) return alert("Įveskite pavadinimą!");
+        qIdx = 0;
         showSection('quiz-step');
+        updateUI();
     }
 
-    function updateRiddle() {
-        const idx = document.getElementById('q-select').value;
-        document.getElementById('riddle-text').innerText = riddles[idx] || "Mįslė neįvesta";
-    }
-
-    function saveAns() {
-        const idx = document.getElementById('q-select').value;
-        const ans = document.getElementById('ans-input').value;
-        gameData[currentTeam][idx] = ans;
-        localStorage.setItem('gsg_data', JSON.stringify(gameData));
-        alert("Išsaugota!");
+    function updateUI() {
+        document.getElementById('display-team-name').innerText = currentTeamName;
+        document.getElementById('progress-bar').innerText = `Klausimas ${qIdx + 1} iš ${quizData.length}`;
+        document.getElementById('riddle-text').innerText = quizData[qIdx].q;
         document.getElementById('ans-input').value = "";
+        document.getElementById('ans-input').focus();
+        document.getElementById('feedback-area').className = "feedback";
+        document.getElementById('next-location-box').style.display = "none";
+        document.getElementById('input-area').style.display = "block";
+    }
+
+    function checkAnswer() {
+        const userAns = document.getElementById('ans-input').value.toLowerCase().trim();
+        const feedback = document.getElementById('feedback-area');
+        
+        if (userAns === quizData[qIdx].a) {
+            feedback.innerText = "Teisingai! Šaunuoliai.";
+            feedback.className = "feedback correct";
+            document.getElementById('input-area').style.display = "none";
+            document.getElementById('location-text').innerText = quizData[qIdx].loc;
+            document.getElementById('next-location-box').style.display = "block";
+            
+            // Išsaugom rezultatą
+            if(!gameResults[currentTeamName]) gameResults[currentTeamName] = 0;
+            gameResults[currentTeamName]++;
+            localStorage.setItem('gsg_results', JSON.stringify(gameResults));
+        } else {
+            feedback.innerText = "Neteisingai, bandykite dar kartą!";
+            feedback.className = "feedback wrong";
+        }
+    }
+
+    function nextQuestion() {
+        qIdx++;
+        if (qIdx < quizData.length) {
+            updateUI();
+        } else {
+            document.getElementById('quiz-step').innerHTML = "<h2>🎉 FINIŠAS!</h2><p>Jūs sėkmingai įveikėte visas užduotis.</p><button class='action-btn' onclick='location.reload()'>Į pradžią</button>";
+        }
     }
 
     function checkAdmin() {
-        const user = document.getElementById('admin-user').value;
-        const pass = document.getElementById('admin-pass').value;
-        if(user === "admin" && pass === "gsg2026") {
+        if(document.getElementById('admin-user').value === "admin" && document.getElementById('admin-pass').value === "gsg2026") {
             renderResults();
             showSection('admin-panel');
-        } else {
-            alert("Neteisingi duomenys!");
-        }
+        } else { alert("Klaida!"); }
     }
 
     function renderResults() {
         const list = document.getElementById('results-list');
         list.innerHTML = "";
-        for (let t in gameData) {
-            let div = document.createElement('div');
-            div.className = "result-row";
-            div.innerHTML = `<strong>${t}:</strong> ${gameData[t].filter(a => a).length} atsakymai`;
-            list.appendChild(div);
+        for (let t in gameResults) {
+            list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee"><strong>${t}:</strong> ${gameResults[t]} taškų</div>`;
         }
     }
 
     function generateQR() {
         const url = document.getElementById('qr-url').value;
+        if(!url) return;
         document.getElementById('qrcode').innerHTML = "";
-        new QRCode(document.getElementById("qrcode"), url);
+        new QRCode(document.getElementById("qrcode"), { text: url, width: 150, height: 150 });
     }
 </script>
 
