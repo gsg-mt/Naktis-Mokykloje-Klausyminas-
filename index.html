@@ -36,19 +36,14 @@
         .correct { border: 1px solid #22c55e; color: #22c55e; background: rgba(34, 197, 94, 0.1); }
         .wrong { border: 1px solid #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
         
-        /* NAUJAS STILIUS SKAIDRIAM LOGOTIPUI */
         .ekspla-logo-sutvarkytas {
-            max-width: 180px;
-            height: auto;
-            margin-top: 15px;
-            /* Šie du filtrai padaro tamsias raides baltas */
-            filter: brightness(0) invert(1);
-            opacity: 0.9;
+            max-width: 180px; height: auto; margin-top: 15px;
+            filter: brightness(0) invert(1); opacity: 0.9;
         }
-
         .sponsors { margin-top: 40px; font-size: 12px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; }
         #qrcode { background: white; padding: 10px; margin: 15px auto; display: inline-block; border-radius: 10px; }
         #reader { border-radius: 15px; overflow: hidden; border: 2px solid white !important; margin-bottom: 15px; background: black; }
+        .admin-box { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 20px; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -61,7 +56,6 @@
             <button class="menu-btn" onclick="showSection('team-selection')">Pradėti žaidimą</button>
             <button class="menu-btn" onclick="showSection('schedule-section')">📅 Tvarkaraštis</button>
             <button class="menu-btn" onclick="showSection('top3-section')">🏆 TOP 3 Rezultatai</button>
-            <button class="menu-btn" onclick="showSection('qr-generator-section')">🛠️ QR kodų kūrimas</button>
             <button class="menu-btn" onclick="showSection('admin-login')">Mokinių taryba</button>
         </div>
 
@@ -71,14 +65,6 @@
             <div class="list-item"><span>20:00</span> <span>Orientacinės</span></div>
             <div class="list-item"><span>23:00</span> <span>Pica ir filmas</span></div>
             <div class="list-item"><span>01:00</span> <span>Apdovanojimai</span></div>
-            <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
-        </div>
-
-        <div id="qr-generator-section" class="hidden">
-            <h3>QR KODŲ GENERAVIMAS</h3>
-            <input type="text" id="qr-input-text" placeholder="Raktas (pvz. kodas1)">
-            <button class="menu-btn" onclick="generateQR()">Generuoti QR</button>
-            <div id="qrcode"></div>
             <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
 
@@ -96,7 +82,7 @@
                 <button class="menu-btn" onclick="stopScanner()">Atšaukti</button>
             </div>
             <div id="quiz-content" class="hidden">
-                <p id="riddle-text" style="font-size: 18px; line-height: 1.4;"></p>
+                <p id="riddle-text"></p>
                 <input type="text" id="ans-input" placeholder="Atsakymas">
                 <button class="menu-btn" onclick="checkAnswer()">Tikrinti</button>
             </div>
@@ -111,43 +97,57 @@
 
         <div id="finish-step" class="hidden">
             <h2 style="color: #22c55e;">FINIŠAS! 🎉</h2>
-            <div id="final-stats" style="margin: 20px 0; font-size: 18px;"></div>
-            <p style="font-size: 13px; color: #aaa;">Jūsų rezultatas užfiksuotas sistemoje.</p>
+            <div id="final-stats"></div>
             <button class="menu-btn" onclick="location.reload()">Baigti</button>
         </div>
 
         <div id="top3-section" class="hidden">
             <h3>🏆 TOP 3 Rezultatai</h3>
-            <div id="top3-list">Kraunama iš bazės...</div>
+            <div id="top3-list">Kraunama...</div>
             <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
 
         <div id="admin-login" class="hidden">
             <h3>Tarybos prisijungimas</h3>
+            <input type="text" id="admin-user" placeholder="Vardas">
             <input type="password" id="admin-pass" placeholder="Slaptažodis">
             <button class="menu-btn" onclick="checkAdmin()">Prisijungti</button>
+            <button class="menu-btn" onclick="showSection('main-menu')" style="border:none; font-size:12px;">Atgal</button>
         </div>
+
         <div id="admin-panel" class="hidden">
             <h3>Admin valdymas</h3>
-            <input type="text" id="add-name" placeholder="Komanda">
-            <input type="number" id="add-score" placeholder="Taškai">
-            <input type="text" id="add-time" placeholder="Laikas">
-            <button class="menu-btn" style="background: #22c55e;" onclick="adminAddResult()">Įrašyti į TOP 3</button>
-            <button class="menu-btn" style="color: #ef4444; border-color: #ef4444;" onclick="clearResults()">Išvalyti bazę</button>
+            
+            <div class="admin-box">
+                <h4>🛠️ QR kodų kūrimas</h4>
+                <input type="text" id="qr-input-text" placeholder="Raktas (pvz. kodas1)">
+                <button class="menu-btn" onclick="generateQR()">Generuoti QR</button>
+                <div id="qrcode"></div>
+            </div>
+
+            <div class="admin-box">
+                <h4>🏆 Rezultatų įrašymas</h4>
+                <input type="text" id="add-name" placeholder="Komanda">
+                <input type="number" id="add-score" placeholder="Taškai">
+                <input type="text" id="add-time" placeholder="Laikas">
+                <button class="menu-btn" style="background: #22c55e;" onclick="adminAddResult()">Įrašyti</button>
+                <button class="menu-btn" style="color: #ef4444; border-color: #ef4444;" onclick="clearResults()">Išvalyti bazę</button>
+            </div>
+
             <button class="menu-btn" onclick="showSection('main-menu')">Atsijungti</button>
         </div>
     </div>
 
     <div class="sponsors">
         Pagrindinis rėmėjas:<br>
-        <img src="ekspla_skaidrus.png" class="ekspla-logo-sutvarkytas">
-        <br><br> GŠG Mokinių Taryba<br>
+        <img src="ekspla_no_bg.png" class="ekspla-logo-sutvarkytas">
+        <br><br>
+        GŠG Mokinių Taryba<br>
         2026
     </div>
 </div>
 
 <script>
-    // --- SUPABASE KONFIGŪRACIJA ---
     const SB_URL = "https://yvnifbghzoqmkslesgkh.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2bmlmYmdoem9xbWtzbGVzZ2toIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0OTc4MjYsImV4cCI6MjA4OTA3MzgyNn0.n_9T9i7tRNtBb8Q-MQ_9ZTiv5DDo8TVYq9AtzOLQTr8"; 
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
@@ -164,6 +164,16 @@
         document.querySelectorAll('.card > div').forEach(div => div.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
         if(id === 'top3-section') renderTop3();
+    }
+
+    function checkAdmin() {
+        const user = document.getElementById('admin-user').value;
+        const pass = document.getElementById('admin-pass').value;
+        if(user === "admin" && pass === "gsgmt2026") {
+            showSection('admin-panel');
+        } else {
+            alert("Neteisingi duomenys!");
+        }
     }
 
     async function renderTop3() {
@@ -183,13 +193,13 @@
         if(!name) return alert("Įveskite pavadinimą");
         const { error } = await _supabase.from('rezultatai').insert([{ team: name, score: pts, time_str: time }]);
         if (error) alert("Klaida įrašant!");
-        else { alert("Pridėta sėkmingai!"); document.getElementById('add-name').value = ""; renderTop3(); }
+        else { alert("Pridėta!"); renderTop3(); }
     }
 
     async function clearResults() {
-        if(!confirm("Ištrinti VISUS rezultatus?")) return;
-        const { error } = await _supabase.from('rezultatai').delete().neq('team', 'null');
-        if(!error) { alert("Išvalyta."); renderTop3(); }
+        if(!confirm("Ištrinti viską?")) return;
+        await _supabase.from('rezultatai').delete().neq('team', 'null');
+        renderTop3();
     }
 
     function generateQR() {
@@ -212,7 +222,7 @@
         const val = document.getElementById('ans-input').value.toLowerCase().trim();
         const feedback = document.getElementById('answer-feedback');
         if(val === quizData[qIdx].a) { score++; feedback.innerText = "TEISINGAI! ✅"; feedback.className = "status-badge correct"; }
-        else { feedback.innerText = "NETEISINGAI ❌ (Atsakymas: " + quizData[qIdx].a + ")"; feedback.className = "status-badge wrong"; }
+        else { feedback.innerText = "NETEISINGAI ❌"; feedback.className = "status-badge wrong"; }
         document.getElementById('quiz-content').classList.add('hidden');
         document.getElementById('next-loc').classList.remove('hidden');
         document.getElementById('location-text').innerText = quizData[qIdx].loc;
@@ -223,30 +233,26 @@
             const diff = Math.floor((new Date() - startTime) / 1000);
             const timeStr = Math.floor(diff / 60) + ":" + (diff % 60).toString().padStart(2, '0');
             showSection('finish-step');
-            document.getElementById('final-stats').innerHTML = `Komanda: <b>${currentTeam}</b><br>Taškai: <b>${score} / ${quizData.length}</b><br>Laikas: <b>${timeStr}</b>`;
+            document.getElementById('final-stats').innerHTML = `Taškai: ${score}/${quizData.length}<br>Laikas: ${timeStr}`;
             return;
         }
         if(!document.getElementById('next-loc').classList.contains('hidden')) qIdx++;
         document.getElementById('next-loc').classList.add('hidden');
         document.getElementById('open-scanner-btn').classList.remove('hidden');
-        document.getElementById('lock-status').innerText = "🔒 RASKITE QR KODĄ";
         document.getElementById('ans-input').value = "";
     }
-
-    function checkAdmin() { if(document.getElementById('admin-pass').value === "gsg2026") showSection('admin-panel'); }
 
     function startScanner() {
         document.getElementById('scanner-container').classList.remove('hidden');
         scanner = new Html5Qrcode("reader");
         scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
             if(text.trim() === quizData[qIdx].key) {
-                document.getElementById('lock-status').innerText = "🔓 ATRAKINTA";
                 document.getElementById('quiz-content').classList.remove('hidden');
                 document.getElementById('riddle-text').innerText = quizData[qIdx].q;
                 stopScanner();
                 document.getElementById('open-scanner-btn').classList.add('hidden');
             }
-        }).catch(err => alert("Kameros klaida. Suteikite leidimą."));
+        });
     }
 
     function stopScanner() { if(scanner) scanner.stop().then(() => document.getElementById('scanner-container').classList.add('hidden')); }
