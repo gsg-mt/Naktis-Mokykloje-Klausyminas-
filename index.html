@@ -52,10 +52,9 @@
         
         input { 
             width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; 
-            border: 1px solid white; background: rgba(255,255,255,0.05); color: white; text-align: center; font-size: 16px;
+            border: 1px solid white; background: rgba(255,255,255,0.05); color: white; text-align: center; font-size: 16px; outline: none;
         }
 
-        /* GELTONI BRŪKŠNIAI ŠONE */
         .list-item { 
             background: rgba(255,255,255,0.1); 
             margin: 8px 0; 
@@ -64,7 +63,7 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center;
-            border-left: 4px solid var(--accent); /* Štai tie brūkšniai */
+            border-left: 4px solid var(--accent);
             font-size: 14px; 
         }
         
@@ -122,13 +121,13 @@
         </div>
 
         <div id="admin-panel" class="hidden">
-            <h3>Valdymas</h3>
+            <h3>Admin Valdymas</h3>
             <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
                 <p id="status-text">Būsena: Tikrinama...</p>
                 <button class="menu-btn" id="toggle-lock-btn" onclick="toggleGameLock()" style="background: var(--accent); color: black; border:none;">KEISTI STATUSĄ</button>
             </div>
             <button class="menu-btn" onclick="showSection('admin-qr-section')">🛠️ QR KODŲ DARYMAS</button>
-            <button class="menu-btn" onclick="showSection('admin-results-section')">🏆 REZULTATŲ ĮRAŠYMAS</button>
+            <button class="menu-btn" onclick="showSection('admin-results-section')">🏆 REZULTATŲ VALDYMAS</button>
             <button class="menu-btn" onclick="logoutAdmin()" style="border-color: var(--error); color: var(--error);">Atsijungti</button>
         </div>
 
@@ -141,11 +140,16 @@
         </div>
 
         <div id="admin-results-section" class="hidden">
-            <h3>Įrašyti rezultatą</h3>
-            <input type="text" id="add-name" placeholder="Komanda">
-            <input type="number" id="add-score" placeholder="Taškai">
-            <input type="text" id="add-time" placeholder="Laikas">
-            <button class="menu-btn" style="background: var(--success); border:none;" onclick="adminAddResult()">Įrašyti</button>
+            <h3>🏆 Rezultatų valdymas</h3>
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <input type="hidden" id="edit-id">
+                <input type="text" id="add-name" placeholder="Komanda">
+                <input type="number" id="add-score" placeholder="Taškai">
+                <input type="text" id="add-time" placeholder="Laikas">
+                <button id="save-btn" class="menu-btn" style="background: var(--success); border:none;" onclick="adminSaveResult()">IŠSAUGOTI</button>
+                <button id="cancel-edit" class="hidden" onclick="resetAdminForm()">Atšaukti redagavimą</button>
+            </div>
+            <div id="admin-results-list" style="text-align: left;"></div>
             <button class="menu-btn" onclick="showSection('admin-panel')">Atgal</button>
         </div>
 
@@ -170,7 +174,7 @@
         </div>
 
         <div id="top3-section" class="hidden">
-            <h3>🏆 TOP 3</h3>
+            <h3>🏆 TOP 3 Rezultatai</h3>
             <div id="top3-list"></div>
             <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
@@ -189,9 +193,8 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2bmlmYmdoem9xbWtzbGVzZ2toIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0OTc4MjYsImV4cCI6MjA4OTA3MzgyNn0.n_9T9i7tRNtBb8Q-MQ_9ZTiv5DDo8TVYq9AtzOLQTr8";
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-    // Saugumas: admin / gsgmt2026
-    const _u = "YWRtaW4="; 
-    const _p = "Z3NnbXQyMDI2";
+    const _u = "YWRtaW4="; // admin
+    const _p = "Z3NnbXQyMDI2"; // gsgmt2026
 
     let gameLocked = false;
     let currentTeam = "", qIdx = 0, score = 0, startTime, scanner;
@@ -210,42 +213,33 @@
     };
 
     async function checkGameStatus() {
-        try {
-            const { data } = await _supabase.from('nustatymai').select('*').eq('id', 1).single();
-            if (data) {
-                gameLocked = data.is_locked;
-                const btn = document.getElementById('start-game-btn');
-                const msg = document.getElementById('game-status-msg');
-                btn.disabled = gameLocked;
-                gameLocked ? msg.classList.remove('hidden') : msg.classList.add('hidden');
-                document.getElementById('status-text').innerText = "Būsena: " + (gameLocked ? "UŽRAKINTA 🔒" : "ATIDARYTA ✅");
-            }
-        } catch (e) { console.log("Būsenos klaida"); }
+        const { data } = await _supabase.from('nustatymai').select('*').eq('id', 1).single();
+        if (data) {
+            gameLocked = data.is_locked;
+            document.getElementById('start-game-btn').disabled = gameLocked;
+            gameLocked ? document.getElementById('game-status-msg').classList.remove('hidden') : document.getElementById('game-status-msg').classList.add('hidden');
+            document.getElementById('status-text').innerText = "Būsena: " + (gameLocked ? "UŽRAKINTA 🔒" : "ATIDARYTA ✅");
+        }
     }
 
     async function toggleGameLock() {
-        const { error } = await _supabase.from('nustatymai').update({ is_locked: !gameLocked }).eq('id', 1);
-        if(!error) {
-            Swal.fire('Sėkmė!', 'Žaidimo būsena pakeista.', 'success');
-            checkGameStatus();
-        }
+        await _supabase.from('nustatymai').update({ is_locked: !gameLocked }).eq('id', 1);
+        Swal.fire('Sėkmė!', 'Žaidimo statusas pakeistas.', 'success');
+        checkGameStatus();
     }
 
     function checkAdmin() {
         const u = document.getElementById('admin-user').value;
         const p = document.getElementById('admin-pass').value;
-        if(btoa(u) === _u && btoa(p) === _p) {
-            Swal.fire({ title: 'Sveiki!', icon: 'success', timer: 1000, showConfirmButton: false });
-            showSection('admin-panel');
-        } else {
-            Swal.fire('Klaida!', 'Neteisingas vardas arba slaptažodis.', 'error');
-        }
+        if(btoa(u) === _u && btoa(p) === _p) showSection('admin-panel');
+        else Swal.fire('Klaida!', 'Neteisingi duomenys.', 'error');
     }
 
     function showSection(id) {
         document.querySelectorAll('.card > div').forEach(div => div.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
         if(id === 'top3-section') renderTop3();
+        if(id === 'admin-results-section') loadAdminResultsList();
     }
 
     async function renderTop3() {
@@ -253,57 +247,77 @@
         const list = document.getElementById('top3-list');
         list.innerHTML = "";
         if (data && data.length) {
-            data.forEach((r, i) => {
-                list.innerHTML += `<div class="list-item"><span>${i+1}. ${r.team}</span> <span>${r.score} tšk.</span></div>`;
-            });
-        } else {
-            list.innerHTML = "Rezultatų dar nėra.";
-        }
+            data.forEach((r, i) => list.innerHTML += `<div class="list-item"><span>${i+1}. ${r.team}</span> <span>${r.score} tšk.</span></div>`);
+        } else list.innerHTML = "Nėra rezultatų.";
     }
 
-    async function adminAddResult() {
+    async function loadAdminResultsList() {
+        const { data } = await _supabase.from('rezultatai').select('*').order('score', { ascending: false });
+        const container = document.getElementById('admin-results-list');
+        container.innerHTML = "";
+        data.forEach(r => {
+            container.innerHTML += `
+                <div class="list-item">
+                    <span>${r.team} (${r.score} tšk.)</span>
+                    <div>
+                        <button onclick="prepareEdit('${r.id}', '${r.team}', ${r.score}, '${r.time_str}')" style="background:none; border:none; cursor:pointer;">✏️</button>
+                        <button onclick="deleteResult('${r.id}')" style="background:none; border:none; cursor:pointer;">🗑️</button>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function prepareEdit(id, team, score, time) {
+        document.getElementById('edit-id').value = id;
+        document.getElementById('add-name').value = team;
+        document.getElementById('add-score').value = score;
+        document.getElementById('add-time').value = time;
+        document.getElementById('save-btn').innerText = "ATNAUJINTI";
+        document.getElementById('cancel-edit').classList.remove('hidden');
+    }
+
+    async function adminSaveResult() {
+        const id = document.getElementById('edit-id').value;
         const name = document.getElementById('add-name').value;
         const pts = document.getElementById('add-score').value;
         const time = document.getElementById('add-time').value;
-        const { error } = await _supabase.from('rezultatai').insert([{ team: name, score: pts, time_str: time }]);
-        if (!error) {
-            Swal.fire('Įrašyta!', 'Komanda pridėta.', 'success');
-            document.getElementById('add-name').value = "";
+        if (id) await _supabase.from('rezultatai').update({ team: name, score: pts, time_str: time }).eq('id', id);
+        else await _supabase.from('rezultatai').insert([{ team: name, score: pts, time_str: time }]);
+        Swal.fire('Atlikta!', '', 'success');
+        resetAdminForm(); loadAdminResultsList();
+    }
+
+    async function deleteResult(id) {
+        if((await Swal.fire({title: 'Tikrai?', showCancelButton: true})).isConfirmed) {
+            await _supabase.from('rezultatai').delete().eq('id', id);
+            loadAdminResultsList();
         }
+    }
+
+    function resetAdminForm() {
+        document.getElementById('edit-id').value = ""; document.getElementById('add-name').value = "";
+        document.getElementById('add-score').value = ""; document.getElementById('add-time').value = "";
+        document.getElementById('save-btn').innerText = "IŠSAUGOTI";
+        document.getElementById('cancel-edit').classList.add('hidden');
     }
 
     function startQuiz() {
         currentTeam = document.getElementById('team-name-input').value;
-        if(!currentTeam) return Swal.fire('Ei!', 'Įrašyk komandos vardą.', 'warning');
-        startTime = new Date();
-        showSection('quiz-step');
+        if(!currentTeam) return Swal.fire('Vardas!', '', 'warning');
+        startTime = new Date(); showSection('quiz-step');
     }
 
     function checkAnswer() {
         const val = document.getElementById('ans-input').value.toLowerCase().trim();
         const correct = val === quizData[qIdx].a;
         if(correct) score++;
-        
-        Swal.fire({
-            title: correct ? 'Teisingai! ✅' : 'Neteisingai ❌',
-            text: correct ? 'Gali keliauti toliau.' : 'Bandyk rasti kitą užuominą.',
-            icon: correct ? 'success' : 'error'
-        }).then(() => {
+        Swal.fire(correct ? 'Teisingai! ✅' : 'Neteisingai ❌', '', correct ? 'success' : 'error').then(() => {
             if(qIdx >= quizData.length - 1) {
-                const diff = Math.floor((new Date() - startTime) / 1000);
-                const timeStr = Math.floor(diff / 60) + ":" + (diff % 60).toString().padStart(2, '0');
-                
-                // Siunčiame į Formspree
-                fetch("https://formspree.io/f/mojklbzq", {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Komanda: currentTeam, Rezultatas: score, Laikas: timeStr })
-                });
-
+                const timeStr = Math.floor((new Date() - startTime) / 1000 / 60) + ":" + (Math.floor((new Date() - startTime) / 1000) % 60).toString().padStart(2, '0');
+                fetch("https://formspree.io/f/mojklbzq", { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Komanda: currentTeam, Taskai: score, Laikas: timeStr }) });
                 Swal.fire('Finišas!', `Surinkai ${score} taškų.`, 'info').then(() => location.reload());
             } else {
-                qIdx++;
-                document.getElementById('quiz-content').classList.add('hidden');
+                qIdx++; document.getElementById('quiz-content').classList.add('hidden');
                 document.getElementById('open-scanner-btn').classList.remove('hidden');
                 document.getElementById('ans-input').value = "";
             }
@@ -312,10 +326,8 @@
 
     function generateQR() {
         const text = document.getElementById('qr-input-text').value;
-        if(!text) return;
         const container = document.getElementById('qrcode');
-        container.classList.remove('hidden');
-        container.innerHTML = "";
+        container.classList.remove('hidden'); container.innerHTML = "";
         new QRCode(container, { text: text, width: 150, height: 150 });
     }
 
@@ -324,13 +336,10 @@
         scanner = new Html5Qrcode("reader");
         scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
             if(text.trim() === quizData[qIdx].key) {
-                stopScanner();
-                document.getElementById('quiz-content').classList.remove('hidden');
+                stopScanner(); document.getElementById('quiz-content').classList.remove('hidden');
                 document.getElementById('riddle-text').innerText = quizData[qIdx].q;
                 document.getElementById('open-scanner-btn').classList.add('hidden');
-            } else {
-                Swal.fire('Ups!', 'Šis QR kodas netinka šiai stotelei.', 'warning');
-            }
+            } else Swal.fire('Ups!', 'Netinkamas kodas.', 'warning');
         });
     }
 
@@ -339,116 +348,3 @@
 </script>
 </body>
 </html>
-<div id="admin-results-section" class="hidden">
-    <h3>🏆 Rezultatų valdymas</h3>
-    
-    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <input type="hidden" id="edit-id"> <input type="text" id="add-name" placeholder="Komanda">
-        <input type="number" id="add-score" placeholder="Taškai">
-        <input type="text" id="add-time" placeholder="Laikas (pvz. 12:05)">
-        <button id="save-btn" class="menu-btn" style="background: var(--success); border:none;" onclick="adminSaveResult()">IŠSAUGOTI</button>
-        <button id="cancel-edit" class="hidden" onclick="resetAdminForm()" style="background:none; border:none; color: gray; cursor:pointer;">Atšaukti redagavimą</button>
-    </div>
-
-    <h4 style="color: var(--accent); margin-top: 20px;">Esami rezultatai (Redagavimui):</h4>
-    <div id="admin-results-list" style="text-align: left;">
-        </div>
-
-    <button class="menu-btn" onclick="showSection('admin-panel')" style="margin-top: 20px;">Atgal į Admin</button>
-</div>
-
-<script>
-    // --- PAPILDOMOS FUNKCIJOS REZULTATŲ VALDYMUI ---
-
-    // 1. Užkrauna rezultatus į Admin skiltį su valdymo mygtukais
-    async function loadAdminResultsList() {
-        const { data } = await _supabase.from('rezultatai').select('*').order('score', { ascending: false });
-        const container = document.getElementById('admin-results-list');
-        container.innerHTML = data && data.length ? "" : "Rezultatų nėra.";
-        
-        data.forEach(r => {
-            container.innerHTML += `
-                <div class="list-item" style="border-left: 4px solid #facc15; margin-bottom: 5px;">
-                    <div>
-                        <strong>${r.team}</strong> - ${r.score} tšk. (${r.time_str})
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="prepareEdit('${r.id}', '${r.team}', ${r.score}, '${r.time_str}')" style="background:none; border:none; cursor:pointer; font-size: 18px;">✏️</button>
-                        <button onclick="deleteResult('${r.id}')" style="background:none; border:none; cursor:pointer; font-size: 18px;">🗑️</button>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    // 2. Paruošia laukelius redagavimui
-    function prepareEdit(id, team, score, time) {
-        document.getElementById('edit-id').value = id;
-        document.getElementById('add-name').value = team;
-        document.getElementById('add-score').value = score;
-        document.getElementById('add-time').value = time;
-        document.getElementById('save-btn').innerText = "ATNAUJINTI ĮRAŠĄ";
-        document.getElementById('cancel-edit').classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // 3. Išsaugo arba atnaujina rezultatą
-    async function adminSaveResult() {
-        const id = document.getElementById('edit-id').value;
-        const name = document.getElementById('add-name').value;
-        const score = document.getElementById('add-score').value;
-        const time = document.getElementById('add-time').value;
-
-        if (!name || !score) return Swal.fire('Klaida', 'Užpildykite vardą ir taškus', 'error');
-
-        if (id) {
-            // Atnaujinimas
-            const { error } = await _supabase.from('rezultatai').update({ team: name, score: score, time_str: time }).eq('id', id);
-            if (!error) Swal.fire('Atnaujinta!', '', 'success');
-        } else {
-            // Naujas įrašas
-            const { error } = await _supabase.from('rezultatai').insert([{ team: name, score: score, time_str: time }]);
-            if (!error) Swal.fire('Pridėta!', '', 'success');
-        }
-        
-        resetAdminForm();
-        loadAdminResultsList();
-    }
-
-    // 4. Trina įrašą
-    async function deleteResult(id) {
-        const confirm = await Swal.fire({
-            title: 'Ar tikrai?',
-            text: "Šio rezultato nebus galima atkurti!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            confirmButtonText: 'Taip, trinti!'
-        });
-
-        if (confirm.isConfirmed) {
-            const { error } = await _supabase.from('rezultatai').delete().eq('id', id);
-            if (!error) {
-                Swal.fire('Ištrinta!', '', 'success');
-                loadAdminResultsList();
-            }
-        }
-    }
-
-    function resetAdminForm() {
-        document.getElementById('edit-id').value = "";
-        document.getElementById('add-name').value = "";
-        document.getElementById('add-score').value = "";
-        document.getElementById('add-time').value = "";
-        document.getElementById('save-btn').innerText = "IŠSAUGOTI";
-        document.getElementById('cancel-edit').classList.add('hidden');
-    }
-
-    // Pakeisk seną showSection, kad užkrautų sąrašą
-    function showSection(id) {
-        document.querySelectorAll('.card > div').forEach(div => div.classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
-        if(id === 'top3-section') renderTop3();
-        if(id === 'admin-results-section') loadAdminResultsList(); // Užkrauna redagavimo sąrašą
-    }
-</script>
