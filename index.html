@@ -19,6 +19,7 @@
             background-size: cover; color: white; display: flex; justify-content: center; min-height: 100vh;
         }
 
+        /* Loading Screen */
         #loader {
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: black; z-index: 9999; display: flex; flex-direction: column;
@@ -54,27 +55,7 @@
             border: 1px solid white; background: rgba(255,255,255,0.05); color: white; text-align: center; font-size: 16px; outline: none;
         }
 
-        /* TOP 3 SPECIALUS STILIUS */
-        .top-winner { 
-            background: var(--accent) !important; 
-            color: black !important;
-            font-weight: 900 !important;
-            text-transform: uppercase !important;
-            font-size: 18px !important;
-            border: none !important;
-            margin: 10px 0 !important;
-            padding: 15px !important;
-        }
-
-        /* LIKUSIOS VIETOS */
-        .other-place { 
-            background: transparent !important; 
-            color: #aaa !important;
-            font-size: 12px !important;
-            text-transform: lowercase !important;
-            border-left: 2px solid rgba(255,255,255,0.2) !important;
-            padding: 8px !important;
-        }
+        .group-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
         .list-item { 
             background: rgba(255,255,255,0.1); 
@@ -82,6 +63,10 @@
             display: flex; justify-content: space-between; align-items: center;
             border-left: 4px solid var(--accent); font-size: 14px; text-align: left;
         }
+
+        .top-winner { background: var(--accent) !important; color: black !important; font-weight: 900 !important; text-transform: uppercase !important; border: none !important; }
+        
+        .riddle-box { background: rgba(250, 204, 21, 0.1); border: 2px dashed var(--accent); padding: 15px; border-radius: 15px; margin: 15px 0; }
         
         .ekspla-logo-sutvarkytas { max-width: 180px; filter: brightness(0) invert(1); opacity: 0.9; margin-top: 15px; }
         .sponsors { margin-top: 40px; font-size: 12px; text-transform: uppercase; opacity: 0.7; }
@@ -103,7 +88,7 @@
     <div class="card">
         <div id="main-menu">
             <div id="game-status-msg" style="color: var(--error); margin-bottom: 10px; font-weight: bold;" class="hidden">🔴 ŽAIDIMAS LAIKINAI UŽDARYTAS</div>
-            <button class="menu-btn" id="start-game-btn" onclick="showSection('team-selection')">Pradėti žaidimą</button>
+            <button class="menu-btn" id="start-game-btn" onclick="showSection('group-selection')">Pradėti žaidimą</button>
             <button class="menu-btn" onclick="showSection('schedule-section')">📅 Tvarkaraštis</button>
             <button class="menu-btn" onclick="showSection('top3-section')">🏆 Rezultatai</button>
             <button class="menu-btn" onclick="showSection('admin-login')">Mokinių taryba</button>
@@ -111,18 +96,67 @@
 
         <div id="schedule-section" class="hidden">
             <h3 style="color: var(--accent);">📅 PROGRAMA</h3>
-            <div class="list-item"><span>18:30 - 20:00</span> <span>Registracija</span></div>
-            <div class="list-item"><span>20:00 - 20:15</span> <span>Atidarymas</span></div>
-            <div class="list-item"><span>20:15 - 22:15</span> <span>Madų šou</span></div>
-            <div class="list-item"><span>22:15 - 22:30</span> <span>Pertrauka</span></div>
-            <div class="list-item"><span>22:30 - 00:30</span> <span>Diskoteka</span></div>
-            <div class="list-item"><span>00:30 - 01:00</span> <span>Pertrauka</span></div>
-            <div class="list-item"><span>01:00 - 02:30</span> <span>Orientacinės</span></div>
-            <div class="list-item"><span>02:30 - 03:30</span> <span>Ilgoji pertrauka</span></div>
-            <div class="list-item"><span>03:30 - 05:00</span> <span>Filmo peržiūra</span></div>
-            <div class="list-item"><span>05:00 - 07:00</span> <span>Miegojimas</span></div>
-            <div class="list-item"><span>07:00 - 07:15</span> <span>Mankšta</span></div>
-            <div class="list-item"><span>07:15 - 08:00</span> <span>Pabaiga</span></div>
+            <div id="schedule-list">
+                <div class="list-item"><span>18:30 - 20:00</span> <span>Registracija</span></div>
+                <div class="list-item"><span>20:00 - 20:15</span> <span>Pradžia</span></div>
+                <div class="list-item"><span>20:15 - 22:15</span> <span>Madų šou</span></div>
+                <div class="list-item"><span>22:15 - 22:30</span> <span>Pertrauka</span></div>
+                <div class="list-item"><span>22:30 - 00:30</span> <span>Diskoteka</span></div>
+                <div class="list-item"><span>00:30 - 01:00</span> <span>Pertrauka</span></div>
+                <div class="list-item"><span>01:00 - 02:30</span> <span>Orientacinės</span></div>
+                <div class="list-item"><span>02:30 - 03:30</span> <span>Ilgoji pertrauka</span></div>
+                <div class="list-item"><span>03:30 - 05:00</span> <span>Filmo peržiūra</span></div>
+                <div class="list-item"><span>05:00 - 07:00</span> <span>Miegojimas</span></div>
+                <div class="list-item"><span>07:00 - 07:15</span> <span>Mankšta</span></div>
+                <div class="list-item"><span>07:15 - 08:00</span> <span>Pabaiga</span></div>
+            </div>
+            <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
+        </div>
+
+        <div id="group-selection" class="hidden">
+            <h3>Pasirinkite savo grupę</h3>
+            <div class="group-grid">
+                <button class="menu-btn" onclick="setGroup(1)">1 Grupė</button>
+                <button class="menu-btn" onclick="setGroup(2)">2 Grupė</button>
+                <button class="menu-btn" onclick="setGroup(3)">3 Grupė</button>
+                <button class="menu-btn" onclick="setGroup(4)">4 Grupė</button>
+                <button class="menu-btn" onclick="setGroup(5)">5 Grupė</button>
+                <button class="menu-btn" onclick="setGroup(6)">6 Grupė</button>
+            </div>
+            <button class="menu-btn" onclick="showSection('main-menu')" style="border:none; opacity:0.5;">Atgal</button>
+        </div>
+
+        <div id="team-selection" class="hidden">
+            <h3>Komandos pavadinimas</h3>
+            <p id="group-display" style="color: var(--accent); font-weight: bold;"></p>
+            <input type="text" id="team-name-input" placeholder="Įveskite vardą...">
+            <button class="menu-btn" onclick="startQuiz()">PRADĖTI ŽAIDIMĄ</button>
+        </div>
+
+        <div id="quiz-step" class="hidden">
+            <h4 id="step-title">📍 STOTELĖ #1</h4>
+            <div id="riddle-container">
+                <div class="riddle-box">
+                    <p style="font-size: 13px; opacity: 0.7; margin-bottom: 5px;">Užuomina (kur ieškoti kodo?):</p>
+                    <p id="location-riddle" style="font-weight: bold; font-size: 17px;"></p>
+                </div>
+                <button class="menu-btn" style="background: white; color: black;" onclick="startScanner()">📷 SKENUOTI KODĄ</button>
+            </div>
+            <div id="scanner-container" class="hidden">
+                <div id="reader"></div>
+                <button class="menu-btn" onclick="stopScanner()">Atšaukti skenavimą</button>
+            </div>
+            <div id="quiz-content" class="hidden">
+                <div style="background: rgba(34, 197, 94, 0.2); padding: 10px; border-radius: 10px; margin-bottom: 15px;">✅ Kodas rastas! Klausimas:</div>
+                <p id="question-text" style="font-size: 18px; line-height: 1.4; margin-bottom: 15px;"></p>
+                <input type="text" id="ans-input" placeholder="Jūsų atsakymas">
+                <button class="menu-btn" onclick="checkAnswer()">Tikrinti</button>
+            </div>
+        </div>
+
+        <div id="top3-section" class="hidden">
+            <h3 style="color: var(--accent);">🏆 TURNYRINĖ LENTELĖ</h3>
+            <div id="top3-list"></div>
             <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
 
@@ -147,7 +181,7 @@
 
         <div id="admin-qr-section" class="hidden">
             <h3>QR Generavimas</h3>
-            <input type="text" id="qr-input-text" placeholder="Raktas">
+            <input type="text" id="qr-input-text" placeholder="Raktas (pvz. kodas1)">
             <button class="menu-btn" onclick="generateQR()">Generuoti</button>
             <div id="qrcode" class="hidden"></div>
             <button class="menu-btn" onclick="showSection('admin-panel')">Atgal</button>
@@ -159,38 +193,12 @@
                 <input type="hidden" id="edit-id">
                 <input type="text" id="add-name" placeholder="Komanda">
                 <input type="number" id="add-score" placeholder="Taškai">
-                <input type="text" id="add-time" placeholder="Laikas (pvz. 05:40)">
+                <input type="text" id="add-time" placeholder="Laikas">
                 <button id="save-btn" class="menu-btn" style="background: var(--success); border:none;" onclick="adminSaveResult()">IŠSAUGOTI</button>
                 <button id="cancel-edit" class="hidden" onclick="resetAdminForm()">Atšaukti</button>
             </div>
             <div id="admin-results-list" style="text-align: left;"></div>
             <button class="menu-btn" onclick="showSection('admin-panel')">Atgal</button>
-        </div>
-
-        <div id="team-selection" class="hidden">
-            <h3>Komandos pavadinimas</h3>
-            <input type="text" id="team-name-input" placeholder="Įveskite vardą...">
-            <button class="menu-btn" onclick="startQuiz()">PRADĖTI</button>
-        </div>
-
-        <div id="quiz-step" class="hidden">
-            <div id="lock-status" style="margin-bottom: 15px; color: var(--accent); font-weight: bold;">🔒 RASKITE QR KODĄ</div>
-            <div id="scanner-container" class="hidden">
-                <div id="reader"></div>
-                <button class="menu-btn" onclick="stopScanner()">Atšaukti</button>
-            </div>
-            <div id="quiz-content" class="hidden">
-                <p id="riddle-text" style="font-size: 18px; line-height: 1.4; margin-bottom: 15px;"></p>
-                <input type="text" id="ans-input" placeholder="Jūsų atsakymas">
-                <button class="menu-btn" onclick="checkAnswer()">Tikrinti</button>
-            </div>
-            <button id="open-scanner-btn" class="menu-btn" style="background: white; color: black;" onclick="startScanner()">📷 SKENUOTI KODĄ</button>
-        </div>
-
-        <div id="top3-section" class="hidden">
-            <h3 style="color: var(--accent);">🏆 TURNYRINĖ LENTELĖ</h3>
-            <div id="top3-list"></div>
-            <button class="menu-btn" onclick="showSection('main-menu')">Atgal</button>
         </div>
     </div>
 
@@ -202,7 +210,6 @@
 </div>
 
 <script>
-    // --- KONFIGŪRACIJA ---
     const SB_URL = "https://yvnifbghzoqmkslesgkh.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2bmlmYmdoem9xbWtzbGVzZ2toIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0OTc4MjYsImV4cCI6MjA4OTA3MzgyNn0.n_9T9i7tRNtBb8Q-MQ_9ZTiv5DDo8TVYq9AtzOLQTr8";
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
@@ -210,12 +217,20 @@
     const _u = "YWRtaW4="; 
     const _p = "Z3NnbXQyMDI2";
 
-    let gameLocked = false;
-    let currentTeam = "", qIdx = 0, score = 0, startTime, scanner;
+    let selectedGroup = 0, currentTeam = "", qIdx = 0, score = 0, startTime, scanner, gameLocked = false;
     
+    const locationRiddles = {
+        1: ["Eikite prie bibliotekos durų", "Ieškokite prie sporto salės", "Kur kabo didžiausias veidrodis?", "Raskite rūbinės 5 spintelę", "Prie informatikos kabineto", "Kur stovi valgyklos stalas?", "Prie mokytojų kambario", "Prie pagrindinio įėjimo"],
+        2: ["Prie sporto salės", "Eikite į biblioteką", "Raskite rūbinės 5 spintelę", "Prie informatikos kabineto", "Kur kabo didžiausias veidrodis?", "Prie pagrindinio įėjimo", "Prie mokytojų kambario", "Kur stovi valgyklos stalas?"],
+        3: ["Kur stovi valgyklos stalas?", "Prie pagrindinio įėjimo", "Prie bibliotekos durų", "Kur kabo didžiausias veidrodis?", "Ieškokite prie sporto salės", "Prie informatikos kabineto", "Raskite rūbinės 5 spintelę", "Prie mokytojų kambario"],
+        4: ["Raskite rūbinės 5 spintelę", "Prie informatikos kabineto", "Kur stovi valgyklos stalas?", "Prie pagrindinio įėjimo", "Ieškokite prie sporto salės", "Prie mokytojų kambario", "Kur kabo didžiausias veidrodis?", "Eikite prie bibliotekos durų"],
+        5: ["Prie mokytojų kambario", "Kur kabo didžiausias veidrodis?", "Prie bibliotekos durų", "Ieškokite prie sporto salės", "Prie informatikos kabineto", "Raskite rūbinės 5 spintelę", "Prie pagrindinio įėjimo", "Kur stovi valgyklos stalas?"],
+        6: ["Prie informatikos kabineto", "Kur stovi valgyklos stalas?", "Prie pagrindinio įėjimo", "Prie mokytojų kambario", "Eikite prie bibliotekos durų", "Ieškokite prie sporto salės", "Kur kabo didžiausias veidrodis?", "Raskite rūbinės 5 spintelę"]
+    };
+
     const quizData = [
         { q: "Kas režisavo filmą „Titanic“?", a: "james cameron", key: "kodas1" },
-        { q: "Kuris Lietuvos valdovas buvo Jogailos pusbrolis, kartu dalyvavo Žalgirio mūšyje?", a: "vytautas didysis", key: "kodas2" },
+        { q: "Kuris Lietuvos valdovas buvo Jogailos pusbrolis?", a: "vytautas didysis", key: "kodas2" },
         { q: "Kaip vadinasi organėlė ląstelėje, atsakinga už energijos gamybą?", a: "mitochondrija", key: "kodas3" },
         { q: "Koks žemynas neturi aktyvių ugnikalnių?", a: "australija", key: "kodas4" },
         { q: "Kiek laiko juostų turi Rusija?", a: "11", key: "kodas5" },
@@ -226,22 +241,17 @@
 
     window.onload = async () => {
         await checkGameStatus();
-        setTimeout(() => { 
-            document.getElementById('loader').style.opacity = '0'; 
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500); 
-        }, 1000);
+        setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 1000);
     };
 
     async function checkGameStatus() {
-        try {
-            const { data } = await _supabase.from('nustatymai').select('*').eq('id', 1).single();
-            if (data) {
-                gameLocked = data.is_locked;
-                document.getElementById('start-game-btn').disabled = gameLocked;
-                gameLocked ? document.getElementById('game-status-msg').classList.remove('hidden') : document.getElementById('game-status-msg').classList.add('hidden');
-                document.getElementById('status-text').innerText = "Būsena: " + (gameLocked ? "UŽRAKINTA 🔒" : "ATIDARYTA ✅");
-            }
-        } catch (e) {}
+        const { data } = await _supabase.from('nustatymai').select('*').eq('id', 1).single();
+        if (data) {
+            gameLocked = data.is_locked;
+            document.getElementById('start-game-btn').disabled = gameLocked;
+            gameLocked ? document.getElementById('game-status-msg').classList.remove('hidden') : document.getElementById('game-status-msg').classList.add('hidden');
+            document.getElementById('status-text').innerText = "Būsena: " + (gameLocked ? "UŽRAKINTA 🔒" : "ATIDARYTA ✅");
+        }
     }
 
     async function toggleGameLock() {
@@ -250,53 +260,84 @@
         checkGameStatus();
     }
 
-    function checkAdmin() {
-        const u = document.getElementById('admin-user').value;
-        const p = document.getElementById('admin-pass').value;
-        if(btoa(u) === _u && btoa(p) === _p) showSection('admin-panel');
-        else Swal.fire('Klaida!', 'Neteisingi duomenys.', 'error');
+    function setGroup(num) {
+        selectedGroup = num;
+        document.getElementById('group-display').innerText = num + " GRUPĖ";
+        showSection('team-selection');
     }
 
-    function showSection(id) {
-        document.querySelectorAll('.card > div').forEach(div => div.classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
-        if(id === 'top3-section') renderTop3();
-        if(id === 'admin-results-section') loadAdminResultsList();
+    function startQuiz() {
+        currentTeam = document.getElementById('team-name-input').value;
+        if(!currentTeam) return Swal.fire('Įveskite vardą!');
+        startTime = new Date();
+        showSection('quiz-step');
+        updateRiddle();
+    }
+
+    function updateRiddle() {
+        document.getElementById('step-title').innerText = "📍 STOTELĖ #" + (qIdx + 1);
+        const riddles = locationRiddles[selectedGroup];
+        document.getElementById('location-riddle').innerText = riddles[qIdx] || "Ieškokite kodo!";
+        document.getElementById('riddle-container').classList.remove('hidden');
+        document.getElementById('quiz-content').classList.add('hidden');
+    }
+
+    function checkAnswer() {
+        const val = document.getElementById('ans-input').value.toLowerCase().trim();
+        const correct = val === quizData[qIdx].a;
+        if(correct) score++;
+        
+        Swal.fire(correct ? 'Teisingai! ✅' : 'Neteisingai ❌', '', correct ? 'success' : 'error').then(() => {
+            if(qIdx >= quizData.length - 1) {
+                const timeDiff = Math.floor((new Date() - startTime) / 1000);
+                const timeStr = Math.floor(timeDiff / 60).toString().padStart(2, '0') + ":" + (timeDiff % 60).toString().padStart(2, '0');
+                _supabase.from('rezultatai').insert([{ team: currentTeam + " (Gr. " + selectedGroup + ")", score: score, time_str: timeStr }]);
+                Swal.fire('Finišas!', `Surinkai ${score} taškų.`, 'info').then(() => location.reload());
+            } else {
+                qIdx++;
+                updateRiddle();
+                document.getElementById('ans-input').value = "";
+            }
+        });
+    }
+
+    function startScanner() {
+        document.getElementById('scanner-container').classList.remove('hidden');
+        scanner = new Html5Qrcode("reader");
+        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+            if(text.trim() === quizData[qIdx].key) {
+                stopScanner();
+                document.getElementById('riddle-container').classList.add('hidden');
+                document.getElementById('quiz-content').classList.remove('hidden');
+                document.getElementById('question-text').innerText = quizData[qIdx].q;
+            } else Swal.fire('Ups!', 'Netinkamas kodas šiai stotelei.', 'warning');
+        });
+    }
+
+    function stopScanner() { if(scanner) scanner.stop().then(() => document.getElementById('scanner-container').classList.add('hidden')); }
+    
+    function checkAdmin() {
+        if(btoa(document.getElementById('admin-user').value) === _u && btoa(document.getElementById('admin-pass').value) === _p) showSection('admin-panel');
+        else Swal.fire('Klaida!', '', 'error');
     }
 
     async function renderTop3() {
-        const { data } = await _supabase.from('rezultatai').select('*').order('score', { ascending: false }).order('time_str', { ascending: true });
+        const { data } = await _supabase.from('rezultatai').select('*').order('score', { ascending: false }).limit(10);
         const list = document.getElementById('top3-list');
-        list.innerHTML = "";
-        
-        if (data && data.length) {
-            data.forEach((r, i) => {
-                const isTop3 = i < 3;
-                list.innerHTML += `
-                    <div class="list-item ${isTop3 ? 'top-winner' : 'other-place'}">
-                        <span>${i+1}. ${r.team}</span> 
-                        <span>${r.score} TŠK. (${r.time_str})</span>
-                    </div>`;
-            });
-        } else {
-            list.innerHTML = "Rezultatų dar nėra.";
-        }
+        list.innerHTML = data.map((r, i) => `<div class="list-item ${i < 3 ? 'top-winner' : ''}">${i + 1}. ${r.team} - ${r.score} tšk. (${r.time_str})</div>`).join('');
     }
 
     async function loadAdminResultsList() {
         const { data } = await _supabase.from('rezultatai').select('*').order('score', { ascending: false });
         const container = document.getElementById('admin-results-list');
-        container.innerHTML = "";
-        data.forEach(r => {
-            container.innerHTML += `
-                <div class="list-item" style="border-left-color: var(--accent);">
-                    <span>${r.team} (${r.score} tšk.)</span>
-                    <div>
-                        <button onclick="prepareEdit('${r.id}', '${r.team}', ${r.score}, '${r.time_str}')" style="background:none; border:none; cursor:pointer;">✏️</button>
-                        <button onclick="deleteResult('${r.id}')" style="background:none; border:none; cursor:pointer;">🗑️</button>
-                    </div>
-                </div>`;
-        });
+        container.innerHTML = data.map(r => `
+            <div class="list-item">
+                <span>${r.team} (${r.score})</span>
+                <div>
+                    <button onclick="prepareEdit('${r.id}', '${r.team}', ${r.score}, '${r.time_str}')">✏️</button>
+                    <button onclick="deleteResult('${r.id}')">🗑️</button>
+                </div>
+            </div>`).join('');
     }
 
     async function adminSaveResult() {
@@ -306,57 +347,26 @@
         const time = document.getElementById('add-time').value;
         if (id) await _supabase.from('rezultatai').update({ team: name, score: pts, time_str: time }).eq('id', id);
         else await _supabase.from('rezultatai').insert([{ team: name, score: pts, time_str: time }]);
-        Swal.fire('Išsaugota!', '', 'success');
         resetAdminForm(); loadAdminResultsList();
     }
 
     async function deleteResult(id) {
-        const confirm = await Swal.fire({title: 'Tikrai trinti?', showCancelButton: true, confirmButtonColor: '#ef4444'});
-        if(confirm.isConfirmed) {
-            const { error } = await _supabase.from('rezultatai').delete().eq('id', id);
-            if (!error) { Swal.fire('Ištrinta!', '', 'success'); loadAdminResultsList(); }
-            else Swal.fire('Klaida!', error.message, 'error');
+        if((await Swal.fire({title: 'Tikrai trinti?', showCancelButton: true, confirmButtonColor: '#ef4444'})).isConfirmed) {
+            await _supabase.from('rezultatai').delete().eq('id', id);
+            loadAdminResultsList();
         }
     }
 
-    function prepareEdit(id, team, score, time) {
-        document.getElementById('edit-id').value = id;
-        document.getElementById('add-name').value = team;
-        document.getElementById('add-score').value = score;
-        document.getElementById('add-time').value = time;
-        document.getElementById('save-btn').innerText = "ATNAUJINTI";
-        document.getElementById('cancel-edit').classList.remove('hidden');
+    function prepareEdit(id, team, pts, time) {
+        document.getElementById('edit-id').value = id; document.getElementById('add-name').value = team;
+        document.getElementById('add-score').value = pts; document.getElementById('add-time').value = time;
+        document.getElementById('save-btn').innerText = "ATNAUJINTI"; document.getElementById('cancel-edit').classList.remove('hidden');
     }
 
     function resetAdminForm() {
         document.getElementById('edit-id').value = ""; document.getElementById('add-name').value = "";
         document.getElementById('add-score').value = ""; document.getElementById('add-time').value = "";
-        document.getElementById('save-btn').innerText = "IŠSAUGOTI";
-        document.getElementById('cancel-edit').classList.add('hidden');
-    }
-
-    function startQuiz() {
-        currentTeam = document.getElementById('team-name-input').value;
-        if(!currentTeam) return Swal.fire('Vardas!', '', 'warning');
-        startTime = new Date(); showSection('quiz-step');
-    }
-
-    function checkAnswer() {
-        const val = document.getElementById('ans-input').value.toLowerCase().trim();
-        const correct = val === quizData[qIdx].a;
-        if(correct) score++;
-        Swal.fire(correct ? 'Teisingai! ✅' : 'Neteisingai ❌', '', correct ? 'success' : 'error').then(() => {
-            if(qIdx >= quizData.length - 1) {
-                const timeDiff = Math.floor((new Date() - startTime) / 1000);
-                const timeStr = Math.floor(timeDiff / 60).toString().padStart(2, '0') + ":" + (timeDiff % 60).toString().padStart(2, '0');
-                fetch("https://formspree.io/f/mojklbzq", { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Komanda: currentTeam, Taskai: score, Laikas: timeStr }) });
-                Swal.fire('Finišas!', `Surinkai ${score} taškų.`, 'info').then(() => location.reload());
-            } else {
-                qIdx++; document.getElementById('quiz-content').classList.add('hidden');
-                document.getElementById('open-scanner-btn').classList.remove('hidden');
-                document.getElementById('ans-input').value = "";
-            }
-        });
+        document.getElementById('save-btn').innerText = "IŠSAUGOTI"; document.getElementById('cancel-edit').classList.add('hidden');
     }
 
     function generateQR() {
@@ -366,19 +376,7 @@
         new QRCode(container, { text: text, width: 150, height: 150 });
     }
 
-    function startScanner() {
-        document.getElementById('scanner-container').classList.remove('hidden');
-        scanner = new Html5Qrcode("reader");
-        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-            if(text.trim() === quizData[qIdx].key) {
-                stopScanner(); document.getElementById('quiz-content').classList.remove('hidden');
-                document.getElementById('riddle-text').innerText = quizData[qIdx].q;
-                document.getElementById('open-scanner-btn').classList.add('hidden');
-            } else Swal.fire('Ups!', 'Netinkamas kodas šiai stotelei.', 'warning');
-        });
-    }
-
-    function stopScanner() { if(scanner) scanner.stop().then(() => document.getElementById('scanner-container').classList.add('hidden')); }
+    function showSection(id) { document.querySelectorAll('.card > div').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); if(id === 'top3-section') renderTop3(); if(id === 'admin-results-section') loadAdminResultsList(); }
     function logoutAdmin() { location.reload(); }
 </script>
 </body>
