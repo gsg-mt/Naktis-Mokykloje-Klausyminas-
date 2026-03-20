@@ -19,7 +19,6 @@
             background-size: cover; color: white; display: flex; justify-content: center; min-height: 100vh;
         }
 
-        /* Loading Screen */
         #loader {
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: black; z-index: 9999; display: flex; flex-direction: column;
@@ -98,7 +97,7 @@
             <h3 style="color: var(--accent);">📅 PROGRAMA</h3>
             <div id="schedule-list">
                 <div class="list-item"><span>18:30 - 20:00</span> <span>Registracija</span></div>
-                <div class="list-item"><span>20:00 - 20:15</span> <span>Pradžia</span></div>
+                <div class="list-item"><span>20:00 - 20:15</span> <span>Atidarymas</span></div>
                 <div class="list-item"><span>20:15 - 22:15</span> <span>Madų šou</span></div>
                 <div class="list-item"><span>22:15 - 22:30</span> <span>Pertrauka</span></div>
                 <div class="list-item"><span>22:30 - 00:30</span> <span>Diskoteka</span></div>
@@ -120,8 +119,6 @@
                 <button class="menu-btn" onclick="setGroup(2)">2 Grupė</button>
                 <button class="menu-btn" onclick="setGroup(3)">3 Grupė</button>
                 <button class="menu-btn" onclick="setGroup(4)">4 Grupė</button>
-                <button class="menu-btn" onclick="setGroup(5)">5 Grupė</button>
-                <button class="menu-btn" onclick="setGroup(6)">6 Grupė</button>
             </div>
             <button class="menu-btn" onclick="showSection('main-menu')" style="border:none; opacity:0.5;">Atgal</button>
         </div>
@@ -129,25 +126,28 @@
         <div id="team-selection" class="hidden">
             <h3>Komandos pavadinimas</h3>
             <p id="group-display" style="color: var(--accent); font-weight: bold;"></p>
-            <input type="text" id="team-name-input" placeholder="Įveskite vardą...">
+            <input type="text" id="team-name-input" placeholder="Įveskite pavadinimą...">
             <button class="menu-btn" onclick="startQuiz()">PRADĖTI ŽAIDIMĄ</button>
         </div>
 
         <div id="quiz-step" class="hidden">
-            <h4 id="step-title">📍 STOTELĖ #1</h4>
+            <h4 id="step-title" style="color: var(--accent);">📍 STOTELĖ #1</h4>
+            
             <div id="riddle-container">
                 <div class="riddle-box">
-                    <p style="font-size: 13px; opacity: 0.7; margin-bottom: 5px;">Užuomina (kur ieškoti kodo?):</p>
-                    <p id="location-riddle" style="font-weight: bold; font-size: 17px;"></p>
+                    <p style="font-size: 13px; opacity: 0.7; margin-bottom: 5px;">Užduotis: suraskite QR kodą!</p>
+                    <p id="location-riddle" style="font-weight: bold; font-size: 18px; text-transform: uppercase;"></p>
                 </div>
                 <button class="menu-btn" style="background: white; color: black;" onclick="startScanner()">📷 SKENUOTI KODĄ</button>
             </div>
+
             <div id="scanner-container" class="hidden">
                 <div id="reader"></div>
-                <button class="menu-btn" onclick="stopScanner()">Atšaukti skenavimą</button>
+                <button class="menu-btn" onclick="stopScanner()">Atšaukti</button>
             </div>
+
             <div id="quiz-content" class="hidden">
-                <div style="background: rgba(34, 197, 94, 0.2); padding: 10px; border-radius: 10px; margin-bottom: 15px;">✅ Kodas rastas! Klausimas:</div>
+                <div style="background: rgba(34, 197, 94, 0.2); padding: 10px; border-radius: 10px; margin-bottom: 15px;">✅ RASTA! Atsakykite į klausimą:</div>
                 <p id="question-text" style="font-size: 18px; line-height: 1.4; margin-bottom: 15px;"></p>
                 <input type="text" id="ans-input" placeholder="Jūsų atsakymas">
                 <button class="menu-btn" onclick="checkAnswer()">Tikrinti</button>
@@ -169,7 +169,7 @@
         </div>
 
         <div id="admin-panel" class="hidden">
-            <h3>Admin Valdymas</h3>
+            <h3>Valdymas</h3>
             <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
                 <p id="status-text">Būsena: Tikrinama...</p>
                 <button class="menu-btn" onclick="toggleGameLock()" style="background: var(--accent); color: black; border:none;">KEISTI STATUSĄ</button>
@@ -181,14 +181,14 @@
 
         <div id="admin-qr-section" class="hidden">
             <h3>QR Generavimas</h3>
-            <input type="text" id="qr-input-text" placeholder="Raktas (pvz. kodas1)">
+            <input type="text" id="qr-input-text" placeholder="Raktas (kodas1, kodas2...)">
             <button class="menu-btn" onclick="generateQR()">Generuoti</button>
             <div id="qrcode" class="hidden"></div>
             <button class="menu-btn" onclick="showSection('admin-panel')">Atgal</button>
         </div>
 
         <div id="admin-results-section" class="hidden">
-            <h3>🏆 Rezultatų valdymas</h3>
+            <h3>Rezultatų valdymas</h3>
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
                 <input type="hidden" id="edit-id">
                 <input type="text" id="add-name" placeholder="Komanda">
@@ -197,9 +197,10 @@
                 <button id="save-btn" class="menu-btn" style="background: var(--success); border:none;" onclick="adminSaveResult()">IŠSAUGOTI</button>
                 <button id="cancel-edit" class="hidden" onclick="resetAdminForm()">Atšaukti</button>
             </div>
-            <div id="admin-results-list" style="text-align: left;"></div>
+            <div id="admin-results-list"></div>
             <button class="menu-btn" onclick="showSection('admin-panel')">Atgal</button>
         </div>
+
     </div>
 
     <div class="sponsors">
@@ -219,13 +220,12 @@
 
     let selectedGroup = 0, currentTeam = "", qIdx = 0, score = 0, startTime, scanner, gameLocked = false;
     
+    // --- JŪSŲ UŽUOMINOS PAGAL GRUPES ---
     const locationRiddles = {
-        1: ["Eikite prie bibliotekos durų", "Ieškokite prie sporto salės", "Kur kabo didžiausias veidrodis?", "Raskite rūbinės 5 spintelę", "Prie informatikos kabineto", "Kur stovi valgyklos stalas?", "Prie mokytojų kambario", "Prie pagrindinio įėjimo"],
-        2: ["Prie sporto salės", "Eikite į biblioteką", "Raskite rūbinės 5 spintelę", "Prie informatikos kabineto", "Kur kabo didžiausias veidrodis?", "Prie pagrindinio įėjimo", "Prie mokytojų kambario", "Kur stovi valgyklos stalas?"],
-        3: ["Kur stovi valgyklos stalas?", "Prie pagrindinio įėjimo", "Prie bibliotekos durų", "Kur kabo didžiausias veidrodis?", "Ieškokite prie sporto salės", "Prie informatikos kabineto", "Raskite rūbinės 5 spintelę", "Prie mokytojų kambario"],
-        4: ["Raskite rūbinės 5 spintelę", "Prie informatikos kabineto", "Kur stovi valgyklos stalas?", "Prie pagrindinio įėjimo", "Ieškokite prie sporto salės", "Prie mokytojų kambario", "Kur kabo didžiausias veidrodis?", "Eikite prie bibliotekos durų"],
-        5: ["Prie mokytojų kambario", "Kur kabo didžiausias veidrodis?", "Prie bibliotekos durų", "Ieškokite prie sporto salės", "Prie informatikos kabineto", "Raskite rūbinės 5 spintelę", "Prie pagrindinio įėjimo", "Kur stovi valgyklos stalas?"],
-        6: ["Prie informatikos kabineto", "Kur stovi valgyklos stalas?", "Prie pagrindinio įėjimo", "Prie mokytojų kambario", "Eikite prie bibliotekos durų", "Ieškokite prie sporto salės", "Kur kabo didžiausias veidrodis?", "Raskite rūbinės 5 spintelę"]
+        1: ["TEN KUR SLYPI MOKYKLOS ISTORIJA", "ŽVILGSNIS Į PRAEITĮ", "NYKŠTUKAI KVIEČIA", "MODERNI MOKYTOJOS JOLANTOS PARODA", "PAGRINDINIAI VARTAI Į PRAGARĄ", "AKTYVI MOKYKLA", "NATALIJA TARASEVIČIENĖ", "ŽINIA APIE ŠIANDIEN"],
+        2: ["BUDINTYSIS PRIE PRAGARO", "NYKŠTUKAI KVIEČIA", "VANDENILIO DIOKSIDAS", "PER KUR VISI ĮEINA Į AKTŲ SALĘ PRIEŠ KALEDINĮ KARNAVALĄ", "ŽVILGSNIS Į SPORTO SALĘ", "RAMUNIŲ KOLONA", "ĮEIMAS Į SVEIKĄ GYVENIMĄ", "ŽINIA APIE ŠIANDIEN"],
+        3: ["NYKŠTUKAI KVIEČIA", "INŽINIERIUS", "TICK-TACK", "BEEEEE~", "TEN KUR YRA TICK-TACK", "NORINT SUSISIEKTI SU PREZIDENTE PASKAMBINKITE", "HELLO, IT'S ME...", "ŽINIA APIE ŠIANDIEN"],
+        4: ["GERIAUSIA VIETA VEIPINT", "TEN KUR GYVENA SATURNAS", "TEN KUR ATSISKIRIA GAMTOS MOKSLAI NUO SOCIALINIŲ MOKSLU", "ŽVILGSNIS Į FUKO ŠVYTUOKLĘ", "KYLAM AUKŠTIN", "ĮEIMAS PAS ARBATYTĘ", "UŽ POILSIO NAMŲ", "ŽINIA APIE ŠIANDIENA"]
     };
 
     const quizData = [
@@ -268,7 +268,7 @@
 
     function startQuiz() {
         currentTeam = document.getElementById('team-name-input').value;
-        if(!currentTeam) return Swal.fire('Įveskite vardą!');
+        if(!currentTeam) return Swal.fire('Vardas!', '', 'warning');
         startTime = new Date();
         showSection('quiz-step');
         updateRiddle();
@@ -292,7 +292,7 @@
                 const timeDiff = Math.floor((new Date() - startTime) / 1000);
                 const timeStr = Math.floor(timeDiff / 60).toString().padStart(2, '0') + ":" + (timeDiff % 60).toString().padStart(2, '0');
                 _supabase.from('rezultatai').insert([{ team: currentTeam + " (Gr. " + selectedGroup + ")", score: score, time_str: timeStr }]);
-                Swal.fire('Finišas!', `Surinkai ${score} taškų.`, 'info').then(() => location.reload());
+                Swal.fire('Finišas!', `Surinkai ${score} taškų. Rezultatas išsiųstas!`, 'info').then(() => location.reload());
             } else {
                 qIdx++;
                 updateRiddle();
@@ -330,14 +330,7 @@
     async function loadAdminResultsList() {
         const { data } = await _supabase.from('rezultatai').select('*').order('score', { ascending: false });
         const container = document.getElementById('admin-results-list');
-        container.innerHTML = data.map(r => `
-            <div class="list-item">
-                <span>${r.team} (${r.score})</span>
-                <div>
-                    <button onclick="prepareEdit('${r.id}', '${r.team}', ${r.score}, '${r.time_str}')">✏️</button>
-                    <button onclick="deleteResult('${r.id}')">🗑️</button>
-                </div>
-            </div>`).join('');
+        container.innerHTML = data.map(r => `<div class="list-item"><span>${r.team} (${r.score})</span><div><button onclick="prepareEdit('${r.id}', '${r.team}', ${r.score}, '${r.time_str}')">✏️</button><button onclick="deleteResult('${r.id}')">🗑️</button></div></div>`).join('');
     }
 
     async function adminSaveResult() {
@@ -351,7 +344,7 @@
     }
 
     async function deleteResult(id) {
-        if((await Swal.fire({title: 'Tikrai trinti?', showCancelButton: true, confirmButtonColor: '#ef4444'})).isConfirmed) {
+        if((await Swal.fire({title: 'Trinti?', showCancelButton: true})).isConfirmed) {
             await _supabase.from('rezultatai').delete().eq('id', id);
             loadAdminResultsList();
         }
@@ -363,19 +356,8 @@
         document.getElementById('save-btn').innerText = "ATNAUJINTI"; document.getElementById('cancel-edit').classList.remove('hidden');
     }
 
-    function resetAdminForm() {
-        document.getElementById('edit-id').value = ""; document.getElementById('add-name').value = "";
-        document.getElementById('add-score').value = ""; document.getElementById('add-time').value = "";
-        document.getElementById('save-btn').innerText = "IŠSAUGOTI"; document.getElementById('cancel-edit').classList.add('hidden');
-    }
-
-    function generateQR() {
-        const text = document.getElementById('qr-input-text').value;
-        const container = document.getElementById('qrcode');
-        container.classList.remove('hidden'); container.innerHTML = "";
-        new QRCode(container, { text: text, width: 150, height: 150 });
-    }
-
+    function resetAdminForm() { document.getElementById('edit-id').value = ""; document.getElementById('add-name').value = ""; document.getElementById('add-score').value = ""; document.getElementById('add-time').value = ""; document.getElementById('save-btn').innerText = "IŠSAUGOTI"; document.getElementById('cancel-edit').classList.add('hidden'); }
+    function generateQR() { const text = document.getElementById('qr-input-text').value; const container = document.getElementById('qrcode'); container.classList.remove('hidden'); container.innerHTML = ""; new QRCode(container, { text: text, width: 150, height: 150 }); }
     function showSection(id) { document.querySelectorAll('.card > div').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); if(id === 'top3-section') renderTop3(); if(id === 'admin-results-section') loadAdminResultsList(); }
     function logoutAdmin() { location.reload(); }
 </script>
